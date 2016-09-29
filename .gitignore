@@ -1,0 +1,20 @@
+# Folders to ignore
+**/.gradle/
+**/.idea/
+**/build/
+ptb-runtime/
+reports/
+
+# Files to ignore
+**/*.iml
+**/*.ipr
+**/*.iws
+**/*.dat
+**/*.DAT
+**/*.idx
+**/*.IDX
+**/*.orig
+**/.gradletasknamecache
+**/global.lock
+**/dependencies.lock
+*.pyc

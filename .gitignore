@@ -6,7 +6,6 @@ ptb-runtime/
 reports/
 
 # Files to ignore
-**/*.iml
 **/*.ipr
 **/*.iws
 **/*.dat

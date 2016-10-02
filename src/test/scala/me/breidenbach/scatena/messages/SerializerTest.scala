@@ -1,6 +1,6 @@
 package me.breidenbach.scatena.messages
 
-import me.breidenbach.TestFixture
+import me.breidenbach.BaseTest
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
@@ -10,12 +10,10 @@ import org.hamcrest.Matchers._
   *         Date: 9/28/16.
   */
 object SerializerTest {
-
-
   val serializerTestObject = StringMessage("Test Data")
 }
 
-class SerializerTest extends TestFixture {
+class SerializerTest extends BaseTest {
   import SerializerTest._
 
   test("test serialization") {

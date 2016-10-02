@@ -7,7 +7,12 @@ import java.nio.ByteBuffer
   *         Date: 9/28/16.
   */
 object BufferFactory {
+  import DataConstants.udpMaxPayload
+
   def createBuffer(size: Int): ByteBuffer = {
     ByteBuffer.allocate(size)
+  }
+  def createBuffer(): ByteBuffer = {
+    createBuffer(udpMaxPayload)
   }
 }

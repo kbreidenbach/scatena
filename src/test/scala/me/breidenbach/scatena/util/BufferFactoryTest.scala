@@ -1,6 +1,6 @@
 package me.breidenbach.scatena.util
 
-import me.breidenbach.TestFixture
+import me.breidenbach.BaseTest
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
@@ -8,7 +8,7 @@ import org.hamcrest.Matchers._
   * @author kbreidenbach 
   *         Date: 9/28/16.
   */
-class BufferFactoryTest extends TestFixture {
+class BufferFactoryTest extends BaseTest {
   test ("test create buffer") {
     val bufferOne = BufferFactory.createBuffer(234)
     val bufferTwo = BufferFactory.createBuffer(321)

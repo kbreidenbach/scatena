@@ -18,7 +18,6 @@ class SerializerTest extends BaseTest {
 
   test("serialization") {
     val serializedBuffer = Serializer.serialize(serializerTestObject)
-
     assertThat(serializedBuffer.isLeft, is(true))
     assertThat(serializedBuffer.left.get.capacity(), is(equalTo(serializerTestObject.length() + Message.messageIdSize)))
   }

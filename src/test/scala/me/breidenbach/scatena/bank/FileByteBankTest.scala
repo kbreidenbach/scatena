@@ -104,7 +104,6 @@ class FileByteBankTest extends BaseTest {
   }
 }
 
-
 object FileByteBankTest {
 
   private[FileByteBankTest] val filename = "TestBank"

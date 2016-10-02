@@ -46,7 +46,6 @@ class FileByteBank(filePath: String) extends ByteBank {
     messageBuffer.limit(size)
     channel.read(messageBuffer)
     messageBuffer.flip()
-    messageBuffer.limit(size)
     (messageBuffer.duplicate(), size)
   }
 

@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{FileSystems, Files}
 
 import me.breidenbach.BaseTest
+import me.breidenbach.scatena.messages.StringMessage
 import me.breidenbach.scatena.util.{BufferFactory, DataConstants}
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
@@ -77,13 +78,23 @@ class FileByteBankTest extends BaseTest {
     assertThat("check initial size against sized after get",
       sizeAfterAdds == sizeAfterGettingResultOne && sizeAfterAdds == sizeAfterGettingResultTwo, is(true))
     assertThat("message one size is correct", messageOneSize, is(equalTo(messageOneLength)))
-    assertThat("check first returned message size is same as message one size ", resultOneSize,
-      is(equalTo(messageOneLength)))
+    assertThat("check first returned message size is correct", resultOneSize, is(equalTo(messageOneLength)))
     assertThat("check first returned message text", resultOneMessage, is(equalTo(testTextOne)))
     assertThat("message two size is correct", messageTwoSize, is(equalTo(messageTwoLength)))
-    assertThat("check second returned message size is same as message one size ", resultTwoSize,
-      is(equalTo(messageTwoLength)))
+    assertThat("check second returned message size is correct", resultTwoSize, is(equalTo(messageTwoLength)))
     assertThat("check second returned message text", resultTwoMessage, is(equalTo(testTextTwo)))
+  }
+
+  test("add a message type")
+  {
+    val position = subject.size()
+    val (messagePosition, messageSize) = subject.add(stringMessage.serializeObject())
+
+    assertThat("returned position is correct", messagePosition, is(equalTo(position)))
+    assertThat("new position is correct", subject.size(),
+      is(equalTo(position + messageOneLength + DataConstants.shortSize)))
+    assertThat("message size is equal to bank size", messageSize.asInstanceOf[Int],
+      is(equalTo(stringMessage.serializeObject().length)))
   }
 
   test("fail to open") {
@@ -105,6 +116,7 @@ object FileByteBankTest {
   private[FileByteBankTest] val testMessageOne = BufferFactory.createBuffer(messageOneLength)
   private[FileByteBankTest] val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
   private[FileByteBankTest] val badFileName = "BAD:/FILENAME"
+  private[FileByteBankTest] val stringMessage = StringMessage(testTextOne)
 
   testMessageOne.put(testTextOne.getBytes(StandardCharsets.UTF_8))
   testMessageOne.flip()

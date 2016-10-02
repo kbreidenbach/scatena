@@ -33,6 +33,13 @@ class FileByteBank(filePath: String) extends ByteBank {
     (position, size)
   }
 
+  override def add(bytes: Array[Byte]): (Long, Short) = {
+    messageBuffer.clear()
+    messageBuffer.put(bytes)
+    messageBuffer.flip()
+    add(messageBuffer)
+  }
+
   override def get(offset: Long): (ByteBuffer, Short) = {
     val size: Short = getSizeFromChannel(offset)
     messageBuffer.clear()

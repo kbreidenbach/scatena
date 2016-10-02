@@ -45,6 +45,6 @@ trait Message {
     buffer
   }
 
-  def serializeObject(): Array[Byte]
-  def uniqueMessageId(): Int
+  protected def serializeObject(): Array[Byte]
+  protected def uniqueMessageId(): Int
 }

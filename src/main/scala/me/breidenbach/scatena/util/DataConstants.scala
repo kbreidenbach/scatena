@@ -15,7 +15,11 @@ object DataConstants {
   val udpHeaderSize: Short = 8
   val udpMaxPayload: Short = (ipMaxPayload - udpHeaderSize).asInstanceOf[Short]
   val messageHeaderPos: Short = 0
-  val messageHeaderLength: Short = 0
-  val messageSizePos: Short = (messageHeaderPos + messageHeaderLength).asInstanceOf[Short]
-  val messageSizeLength: Short = (messageSizePos + shortSize).asInstanceOf[Short]
+  val messageSessionPos: Short = messageHeaderPos
+  val messageSessionLength: Short = longSize
+  val messageSequencePos: Short = (messageSessionPos + messageSessionLength).asInstanceOf[Short]
+  val messageSequenceLength: Short = longSize
+  val messageSizePos: Short = (messageSequencePos + messageSequenceLength).asInstanceOf[Short]
+  val messageSizeLength: Short = shortSize
+  val messageDataStart: Short = (messageSizePos + messageSizeLength).asInstanceOf[Short]
 }

@@ -16,14 +16,14 @@ object SerializerTest {
 class SerializerTest extends BaseTest {
   import SerializerTest._
 
-  test("test serialization") {
+  test("serialization") {
     val serializedBuffer = Serializer.serialize(serializerTestObject)
 
     assertThat(serializedBuffer.isLeft, is(true))
     assertThat(serializedBuffer.left.get.capacity(), is(equalTo(serializerTestObject.length() + Message.messageIdSize)))
   }
 
-  test("test deserialization") {
+  test("deserialization") {
     val serializedBuffer = Serializer.serialize(serializerTestObject)
     val deserializedObject = Message.deSerialize(serializedBuffer.left.get) getOrElse StringMessage("BAD")
     assertThat(deserializedObject.asInstanceOf[StringMessage], is(equalTo(serializerTestObject)))

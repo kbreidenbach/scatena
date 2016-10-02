@@ -9,7 +9,7 @@ import org.hamcrest.Matchers._
   *         Date: 9/28/16.
   */
 class BufferFactoryTest extends BaseTest {
-  test ("test create buffer") {
+  test ("create buffer") {
     val bufferOne = BufferFactory.createBuffer(234)
     val bufferTwo = BufferFactory.createBuffer(321)
 

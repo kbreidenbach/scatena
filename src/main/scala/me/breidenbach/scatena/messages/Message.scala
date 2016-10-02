@@ -12,12 +12,12 @@ import scala.util.{Failure, Success, Try}
   */
 object Message {
 
-  trait DeSerializer {
-    def deSerialize(buffer: ByteBuffer): Message
+  trait DeSerializer[T <: Message] {
+    def deSerialize(buffer: ByteBuffer): T
   }
 
   val messageIdSize = 4
-  val messageIdToDeserializer: Map[Int, DeSerializer] = Map(0 -> StringMessage)
+  val messageIdToDeserializer: Map[Int, DeSerializer[_ <: Message]] = Map(0 -> StringMessage)
 
   def deSerialize(buffer: ByteBuffer): Try[Message] = {
     val messageTypeId = buffer.getInt(0)

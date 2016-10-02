@@ -11,7 +11,7 @@ case class StringMessage(message: String) extends Message {
   override def uniqueMessageId(): Int = 0
 }
 
-object StringMessage extends Message.DeSerializer {
+object StringMessage extends Message.DeSerializer[StringMessage] {
   override def deSerialize(buffer: ByteBuffer): StringMessage = {
     val bytes = Array.ofDim[Byte](buffer.remaining())
     buffer.get(bytes)

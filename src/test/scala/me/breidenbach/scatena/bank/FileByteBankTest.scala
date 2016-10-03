@@ -19,14 +19,12 @@ class FileByteBankTest extends BaseTest {
   var subject: FileByteBank = _
 
   override def beforeEach(): Unit = {
-    super.beforeEach()
     testMessageOne.rewind()
     testMessageTwo.rewind()
     subject = new FileByteBank(filename)
   }
 
   override def afterAll(): Unit = {
-    super.afterAll()
     deleteFiles()
   }
 
@@ -105,17 +103,16 @@ class FileByteBankTest extends BaseTest {
 }
 
 object FileByteBankTest {
-
-  private[FileByteBankTest] val filename = "TestBank"
-  private[FileByteBankTest] val filePath = FileSystems.getDefault.getPath(filename)
-  private[FileByteBankTest] val testTextOne = "This is first test message"
-  private[FileByteBankTest] val testTextTwo = "This is second test message"
-  private[FileByteBankTest] val messageOneLength = testTextOne.length.asInstanceOf[Short]
-  private[FileByteBankTest] val messageTwoLength = testTextTwo.length.asInstanceOf[Short]
-  private[FileByteBankTest] val testMessageOne = BufferFactory.createBuffer(messageOneLength)
-  private[FileByteBankTest] val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
-  private[FileByteBankTest] val badFileName = "BAD:/FILENAME"
-  private[FileByteBankTest] val stringMessage = StringMessage(testTextOne)
+  val filename = "TestBank"
+  val filePath = FileSystems.getDefault.getPath(filename)
+  val testTextOne = "This is first test message"
+  val testTextTwo = "This is second test message"
+  val messageOneLength = testTextOne.length.asInstanceOf[Short]
+  val messageTwoLength = testTextTwo.length.asInstanceOf[Short]
+  val testMessageOne = BufferFactory.createBuffer(messageOneLength)
+  val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
+  val badFileName = "BAD:/FILENAME"
+  val stringMessage = StringMessage(testTextOne)
 
   testMessageOne.put(testTextOne.getBytes(StandardCharsets.UTF_8))
   testMessageOne.flip()
@@ -126,5 +123,4 @@ object FileByteBankTest {
   def deleteFiles(): Unit = {
     Files.deleteIfExists(filePath)
   }
-
 }

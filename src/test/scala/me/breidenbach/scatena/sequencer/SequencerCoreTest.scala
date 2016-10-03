@@ -39,7 +39,7 @@ class SequencerCoreTest extends BaseTest {
 
     assertThat(buffer.isSuccess, is (true))
     assertThat(buffer.get.limit(), is(equalTo(buffer.get.remaining())))
-    assertThat(buffer.get.limit(), is(equalTo(message.serialize().remaining() + DataConstants.messageDataStart)))
+    assertThat(buffer.get.limit(), is(equalTo(message.serialize().remaining() + DataConstants.messageDataPosition)))
   }
 }
 

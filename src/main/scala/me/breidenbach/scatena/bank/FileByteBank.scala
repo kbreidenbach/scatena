@@ -57,8 +57,8 @@ class FileByteBank(filePath: String) extends ByteBank {
       Files.newByteChannel(path, fileOptions)
     } catch {
       case e: IOException =>
-        val message = "cannot create ByteBank"
-        logger.error(message)
+        val message = s"cannot create ByteBank [error=${e.getMessage}]"
+        logger.error(message, e)
         throw ByteBankException(message, e)
     }
   }

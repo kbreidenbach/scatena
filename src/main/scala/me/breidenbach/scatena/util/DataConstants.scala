@@ -5,6 +5,7 @@ package me.breidenbach.scatena.util
   *         Date: 10/1/16.
   */
 object DataConstants {
+  val byteSize: Short = 1
   val shortSize: Short = 2
   val intSize: Short = 4
   val longSize: Short = 8
@@ -14,12 +15,14 @@ object DataConstants {
   val ipMaxPayload: Short = (ethernetMaxPayload - ipMinHeaderSize).asInstanceOf[Short]
   val udpHeaderSize: Short = 8
   val udpMaxPayload: Short = (ipMaxPayload - udpHeaderSize).asInstanceOf[Short]
-  val messageHeaderPos: Short = 0
-  val messageSessionPos: Short = messageHeaderPos
+  val messageHeaderPosition: Short = 0
+  val messageSessionPosition: Short = messageHeaderPosition
   val messageSessionLength: Short = longSize
-  val messageSequencePos: Short = (messageSessionPos + messageSessionLength).asInstanceOf[Short]
+  val messageSequencePosition: Short = (messageSessionPosition + messageSessionLength).asInstanceOf[Short]
   val messageSequenceLength: Short = longSize
-  val messageSizePos: Short = (messageSequencePos + messageSequenceLength).asInstanceOf[Short]
+  val messageSizePosition: Short = (messageSequencePosition + messageSequenceLength).asInstanceOf[Short]
   val messageSizeLength: Short = shortSize
-  val messageDataStart: Short = (messageSizePos + messageSizeLength).asInstanceOf[Short]
+  val messageFlagsPosition: Short = (messageSizePosition + messageSizeLength).asInstanceOf[Short]
+  val messageFlagsLength: Short = byteSize
+  val messageDataPosition: Short = (messageFlagsPosition + messageFlagsLength).asInstanceOf[Short]
 }

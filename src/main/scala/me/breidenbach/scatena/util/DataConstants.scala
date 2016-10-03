@@ -5,11 +5,16 @@ package me.breidenbach.scatena.util
   *         Date: 10/1/16.
   */
 object DataConstants {
+  // type sizes in bytes
   val byteSize: Short = 1
   val shortSize: Short = 2
   val intSize: Short = 4
   val longSize: Short = 8
 
+  // flag positions in the byte
+  val resendFlagPos: Byte = 0
+
+  // communication buffer positions and sizes
   val ethernetMaxPayload : Short= 1500
   val ipMinHeaderSize: Short = 20
   val ipMaxPayload: Short = (ethernetMaxPayload - ipMinHeaderSize).asInstanceOf[Short]
@@ -25,4 +30,8 @@ object DataConstants {
   val messageFlagsPosition: Short = (messageSizePosition + messageSizeLength).asInstanceOf[Short]
   val messageFlagsLength: Short = byteSize
   val messageDataPosition: Short = (messageFlagsPosition + messageFlagsLength).asInstanceOf[Short]
+
+  def setBit(byte: Byte, position: Byte): Byte = (byte | (1 << position)).asInstanceOf[Byte]
+
+  def bitSet(byte: Byte, position: Byte): Boolean = ((byte >> position) & 1) == 1
 }

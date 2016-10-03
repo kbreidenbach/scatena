@@ -28,8 +28,8 @@ class UdpJuncturaTest extends BaseTest {
   test("send and receive") {
     val response = {
       var resBuffer: ByteBuffer = null
-      writer = new UdpWriteJunctura(juncturaName, testHost, testPort, netIf)
-      receiver = new UdpReadJunctura(juncturaName, testHost, testPort, netIf)
+      writer = new UdpWriteJunctura(juncturaName, testHost, testPort, networkInterface)
+      receiver = new UdpReadJunctura(juncturaName, testHost, testPort, networkInterface)
       writer.send(sendBuffer)
       receiver.read((handler) => resBuffer = handler)
       resBuffer
@@ -44,22 +44,22 @@ class UdpJuncturaTest extends BaseTest {
   }
 
   test("bad port") {
-    assertThrows[JuncturaException] { new UdpWriteJunctura(juncturaName, testHost, badPort, netIf) }
+    assertThrows[JuncturaException] (new UdpWriteJunctura(juncturaName, testHost, badPort, networkInterface))
   }
 
   test("bad host") {
-    assertThrows[JuncturaException] { new UdpWriteJunctura(juncturaName, badHost, testPort, netIf)}
+    assertThrows[JuncturaException] (new UdpWriteJunctura(juncturaName, badHost, testPort, networkInterface))
   }
 }
 
 object UdpJuncturaTest {
-  val netIf = getLocalNetworkInterface.getName
+  val networkInterface = getLocalNetworkInterface.getName
   val text = "test message"
   val message = text.getBytes
   val sendBuffer = BufferFactory.createBuffer()
   val testHost = "230.1.1.1"
   val testPort = 17000
-  val badHost = "google.com"
+  val badHost = "0.0.0.0"
   val badPort = 70000
   val juncturaName = "test junctura"
 

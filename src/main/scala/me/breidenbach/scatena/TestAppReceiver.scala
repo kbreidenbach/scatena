@@ -2,7 +2,8 @@ package me.breidenbach.scatena
 
 import java.nio.ByteBuffer
 
-import me.breidenbach.scatena.junctura.UdpReadWriteJunctura
+import me.breidenbach.scatena.junctura.UdpReadJunctura
+
 
 /**
   * @author kbreidenbach 
@@ -10,7 +11,7 @@ import me.breidenbach.scatena.junctura.UdpReadWriteJunctura
   */
 object TestAppReceiver extends App {
 
-  val channel = new UdpReadWriteJunctura("test1", "224.0.0.0", 15000, "lo0", writer = false)
+  val channel = new UdpReadJunctura("test1", "224.0.0.0", 15000, "lo0")
 
   while(true) {
     readAndPrint()

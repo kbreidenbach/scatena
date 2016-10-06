@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':util')
+    compile project(':junctura')
+    compile project(':messages')
+
+    testCompile project(':test')
+}

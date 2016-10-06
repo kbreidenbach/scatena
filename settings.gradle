@@ -1,2 +1,3 @@
+include 'test', 'util', 'junctura', 'messages', 'core'
 rootProject.name = 'scatena'
 

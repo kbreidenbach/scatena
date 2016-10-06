@@ -5,7 +5,7 @@ import java.nio.file.{FileSystems, Files}
 
 import me.breidenbach.BaseTest
 import me.breidenbach.scatena.messages.StringMessage
-import me.breidenbach.scatena.util.{BufferFactory, DataConstants}
+import me.breidenbach.scatena.util.BufferFactory
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
@@ -14,6 +14,7 @@ import org.hamcrest.Matchers._
   *         Date: 10/1/16.
   */
 class FileByteBankTest extends BaseTest {
+  import me.breidenbach.scatena.util.DataConstants._
   import FileByteBankTest._
 
   var subject: FileByteBank = _
@@ -37,7 +38,7 @@ class FileByteBankTest extends BaseTest {
     val (messagePosition, messageSize) = subject.add(testMessageOne)
     assertThat("returned position is correct", messagePosition, is(equalTo(position)))
     assertThat("new position is correct", subject.size(),
-      is(equalTo(position + messageOneLength + DataConstants.shortSize)))
+      is(equalTo(position + messageOneLength + shortSize)))
     assertThat("message size is equal to bank size", messageSize, is(equalTo(messageOneLength)))
   }
 
@@ -48,10 +49,10 @@ class FileByteBankTest extends BaseTest {
 
     assertThat("returned position after first is correct", messageOnePosition, is(equalTo(startingPosition)))
     assertThat("returned position after second is correct", messageTwoPosition,
-      is(equalTo(startingPosition + messageOneSize + DataConstants.shortSize)))
+      is(equalTo(startingPosition + messageOneSize + shortSize)))
     assertThat("new position is correct", subject.size(),
-      is(equalTo(startingPosition + messageOneSize + DataConstants.shortSize +
-        messageTwoSize + DataConstants.shortSize)))
+      is(equalTo(startingPosition + messageOneSize + shortSize +
+        messageTwoSize + shortSize)))
   }
 
   test("retrieving messages") {
@@ -90,7 +91,7 @@ class FileByteBankTest extends BaseTest {
 
     assertThat("returned position is correct", messagePosition, is(equalTo(position)))
     assertThat("new position is correct", subject.size(),
-      is(equalTo(position + messageOneLength + DataConstants.shortSize)))
+      is(equalTo(position + messageOneLength + shortSize)))
     assertThat("message size is equal to bank size", messageSize.asInstanceOf[Int],
       is(equalTo(stringMessage.serializeObject().length)))
   }

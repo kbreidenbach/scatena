@@ -3,8 +3,8 @@ package me.breidenbach.scatena.sequencer
 import java.nio.ByteBuffer
 
 import me.breidenbach.scatena.bank.ByteBank
-import me.breidenbach.scatena.messages.Message
-import me.breidenbach.scatena.util.{BufferFactory, DataConstants}
+import me.breidenbach.scatena.messages.{MessageConstants, Message}
+import me.breidenbach.scatena.util.BufferFactory
 
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
@@ -35,11 +35,11 @@ object SequencerCore {
     case Some(bank: ByteBank) =>
       val (sequenceNumber, size) = bank.add(message.serialize())
       writeBuffer.clear()
-      writeBuffer.position(DataConstants.messageSequencePosition)
+      writeBuffer.position(MessageConstants.messageSequencePosition)
       writeBuffer.putLong(sequenceNumber)
-      writeBuffer.position(DataConstants.messageSizePosition)
+      writeBuffer.position(MessageConstants.messageSizePosition)
       writeBuffer.putShort(size)
-      writeBuffer.position(DataConstants.messageDataPosition)
+      writeBuffer.position(MessageConstants.messageDataPosition)
       writeBuffer.put(message.serialize())
       writeBuffer.flip()
       Success(writeBuffer)

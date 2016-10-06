@@ -1,4 +1,4 @@
-package me.breidenbach.scatena.util
+package me.breidenbach.scatena.messages
 
 import me.breidenbach.BaseTest
 import org.hamcrest.MatcherAssert._
@@ -8,8 +8,8 @@ import org.hamcrest.Matchers._
   * @author kbreidenbach 
   *         Date: 10/3/16.
   */
-class DataConstants$Test extends BaseTest {
-  import DataConstants.{bitSet, setBit}
+class MessageConstantsTest extends BaseTest {
+  import MessageConstants._
 
   test("bit set") {
     val byte: Byte = "10011011".b.asInstanceOf[Byte]

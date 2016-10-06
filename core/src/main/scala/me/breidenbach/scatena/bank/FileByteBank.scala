@@ -5,7 +5,8 @@ import java.nio.ByteBuffer
 import java.nio.channels.SeekableByteChannel
 import java.nio.file._
 
-import me.breidenbach.scatena.util.{BufferFactory, DataConstants}
+import me.breidenbach.scatena.util.BufferFactory
+
 import org.slf4j.LoggerFactory
 
 /**
@@ -14,9 +15,10 @@ import org.slf4j.LoggerFactory
   */
 @throws(classOf[ByteBankException])
 class FileByteBank(filePath: String) extends ByteBank {
+  import me.breidenbach.scatena.util.DataConstants._
   import FileByteBank._
 
-  private val sizeBuffer = BufferFactory.createBuffer(DataConstants.shortSize)
+  private val sizeBuffer = BufferFactory.createBuffer(shortSize)
   private val messageBuffer = BufferFactory.createBuffer()
   private val path = FileSystems.getDefault.getPath(filePath)
   private val channel = openFile()
@@ -71,7 +73,7 @@ class FileByteBank(filePath: String) extends ByteBank {
       sizeBuffer.flip()
       sizeBuffer.getShort()
     }
-    if (size < DataConstants.udpMaxPayload) size else DataConstants.udpMaxPayload
+    if (size < udpMaxPayload) size else udpMaxPayload
   }
 
   private def setSizeBuffer(size: Short): Unit = {

@@ -4,8 +4,7 @@ import java.nio.file.{FileSystems, Files}
 
 import me.breidenbach.BaseTest
 import me.breidenbach.scatena.bank.{ByteBank, FileByteBank}
-import me.breidenbach.scatena.messages.StringMessage
-import me.breidenbach.scatena.util.DataConstants
+import me.breidenbach.scatena.messages.{MessageConstants, StringMessage}
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
@@ -39,7 +38,7 @@ class SequencerCoreTest extends BaseTest {
 
     assertThat(buffer.isSuccess, is (true))
     assertThat(buffer.get.limit(), is(equalTo(buffer.get.remaining())))
-    assertThat(buffer.get.limit(), is(equalTo(message.serialize().remaining() + DataConstants.messageDataPosition)))
+    assertThat(buffer.get.limit(), is(equalTo(message.serialize().remaining() + MessageConstants.messageDataPosition)))
   }
 }
 

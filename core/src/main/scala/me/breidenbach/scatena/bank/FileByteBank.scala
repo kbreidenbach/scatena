@@ -41,9 +41,7 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
     val channelSize = channel.size()
     if (channelSize > 0 && offset < channelSize) getFromChannel(offset)
     else if ((offset - channelSize) < memoryBuffer.position()) getFromMemory(offset - channelSize)
-    else {
-      messageBuffer.clear().flip(); messageBuffer
-    }
+    else emptyBuffer()
   }
 
   override def size(): Long = channel.size() + memoryBuffer.position()
@@ -90,7 +88,7 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
 object FileByteBank {
   private[FileByteBank] val defaultMemorySize = 1024 * 128
   private[FileByteBank] val defaultFlushSize = 1024 * 112
-  private[FileByteBank] def logger = LoggerFactory.getLogger(this.getClass)
+  private[FileByteBank] val logger = LoggerFactory.getLogger(this.getClass)
   private[FileByteBank] val fileOptions = new java.util.HashSet[OpenOption]()
   fileOptions.add(StandardOpenOption.CREATE)
   fileOptions.add(StandardOpenOption.WRITE)

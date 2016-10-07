@@ -25,10 +25,10 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
     }
   }
 
-  protected def getFromMemory(offset: Long, offsetReduction: Long = 0): ByteBuffer = {
+  protected def getFromMemory(offset: Long): ByteBuffer = {
     val currentPosition = memoryBuffer.position()
     val size = {
-      memoryBuffer.flip().position((offset - offsetReduction).asInstanceOf[Int])
+      memoryBuffer.flip().position(offset.asInstanceOf[Int])
       memoryBuffer.getShort
     }
     memoryBuffer.get(bytes, 0, size).clear().position(currentPosition)
@@ -42,4 +42,11 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
     sizeBuffer.putShort(size)
     sizeBuffer.flip()
   }
+
+
+  protected def emptyBuffer() = BufferBackedByteBank.emptyBuffer
+}
+
+object BufferBackedByteBank {
+  val emptyBuffer = BufferFactory.createBuffer(0).asReadOnlyBuffer()
 }

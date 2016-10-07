@@ -22,10 +22,18 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
 
   private var nextOffset = 0
   private var offsetAtZero = 0
+  private var lastOffset = 0
+  private var lastOffsetInBuffer = 0
+  private var lastPosition = 0
+  private var lastPositionInBuffer = 0
 
   override def reset(): Unit = {
     offsetAtZero = 0
     nextOffset = 0
+    lastOffset = 0
+    lastOffsetInBuffer = 0
+    lastPosition = 0
+    lastPositionInBuffer = 0
     memoryBuffer.clear()
   }
 
@@ -39,10 +47,15 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
   }
 
   override def get(offset: Long): ByteBuffer = {
-    if (offset < offsetAtZero || offset > nextOffset) {
-      messageBuffer.clear().flip(); messageBuffer
+    if (offset > nextOffset) emptyBuffer()
+    else {
+      val usedBufferFromStart = nextOffset - offsetAtZero
+      val remainingBuffer = bufferSize - usedBufferFromStart
+      val minimumOffset = if (offsetAtZero - remainingBuffer < lastOffsetInBuffer) lastOffsetInBuffer else offsetAtZero
+      if (offset < minimumOffset || offset >= nextOffset) emptyBuffer()
+      else if (offset < offsetAtZero) getFromMemory(lastPositionInBuffer)
+      else getFromMemory(offset - offsetAtZero)
     }
-    else getFromMemory(offset, offsetAtZero)
   }
 
   override def size(): Long = nextOffset
@@ -51,18 +64,24 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
 
   private def calculateOffsetAndSetBufferPosition(size: Int): Int = {
     val offset = nextOffset
+    val lastPos = memoryBuffer.position()
     nextOffset += size
 
-    if (memoryBuffer.position() + size > bufferSize) {
+    if (lastPos + size > bufferSize) {
       memoryBuffer.clear()
       offsetAtZero = offset
+      lastOffsetInBuffer = lastOffset
+      lastPositionInBuffer = lastPosition
     }
+
+    lastPosition = lastPos
+    lastOffset = offset
     offset
   }
 }
 
 object CircularByteBank {
+  val minimumSize = DataConstants.udpMaxPayload * 5
   private[CircularByteBank] val defaultMemorySize = 1024 * 128
-  private[CircularByteBank] val minimumSize = DataConstants.udpMaxPayload * 5
-  private[CircularByteBank] def logger = LoggerFactory.getLogger(this.getClass)
+  private[CircularByteBank] val logger = LoggerFactory.getLogger(this.getClass)
 }

@@ -17,10 +17,12 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
   protected val bytes = Array.ofDim[Byte](DataConstants.udpMaxPayload)
 
   override def add(bytes: Array[Byte]): Long = {
-    messageBuffer.clear()
-    messageBuffer.put(bytes)
-    messageBuffer.flip()
-    add(messageBuffer)
+    if (bytes.length > bufferSize) -1 else {
+      messageBuffer.clear()
+      messageBuffer.put(bytes)
+      messageBuffer.flip()
+      add(messageBuffer)
+    }
   }
 
   protected def getFromMemory(offset: Long, offsetReduction: Long = 0): ByteBuffer = {

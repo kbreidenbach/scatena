@@ -8,10 +8,11 @@ import java.nio.ByteBuffer
   */
 trait ByteBank {
   def reset(): Unit
-  def add(buffer: ByteBuffer): (Long, Short)
-  def add(bytes: Array[Byte]): (Long, Short)
-  def get(offset: Long): (ByteBuffer, Short)
+  def add(buffer: ByteBuffer): (Long)
+  def add(bytes: Array[Byte]): (Long)
+  def get(offset: Long): (ByteBuffer)
   def size(): Long
+  def flush(): Unit
 }
 
 case class ByteBankException(message: String, cause: Throwable = null) extends Exception(message, cause)

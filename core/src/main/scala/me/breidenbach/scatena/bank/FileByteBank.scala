@@ -25,9 +25,12 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
   private val channel = openFile()
   private val bytes = Array.ofDim[Byte](DataConstants.udpMaxPayload)
 
-  override def reset(): Unit = channel.truncate(0)
+  override def reset(): Unit = {
+    channel.truncate(0)
+    memoryBuffer.clear()
+  }
 
-  override def add(buffer: ByteBuffer): (Long, Short) = {
+  override def add(buffer: ByteBuffer): (Long) = {
     val size = buffer.remaining().asInstanceOf[Short]
     val bufferPosition = {
       if (memoryBuffer.position() > flushSize) flush()
@@ -35,24 +38,35 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
     }
     setSizeBuffer(size)
     memoryBuffer.put(sizeBuffer).put(buffer)
-    (channel.size() + bufferPosition, size)
+    channel.size() + bufferPosition
   }
 
-  override def add(bytes: Array[Byte]): (Long, Short) = {
+  override def add(bytes: Array[Byte]): (Long) = {
     messageBuffer.clear()
     messageBuffer.put(bytes)
     messageBuffer.flip()
     add(messageBuffer)
   }
 
-  override def get(offset: Long): (ByteBuffer, Short) = {
+  override def get(offset: Long): (ByteBuffer) = {
     val channelSize = channel.size()
-    if (channelSize == 0 || offset >= channelSize) getFromMemory(offset - channelSize) else getFromChannel(offset)
+    if (channelSize > 0 && offset < channelSize) getFromChannel(offset)
+    else if ((offset - channelSize) < memoryBuffer.position()) getFromMemory(offset - channelSize)
+    else {
+      messageBuffer.clear().flip(); messageBuffer
+    }
   }
 
   override def size(): Long = channel.size() + memoryBuffer.position()
 
-  private def getFromMemory(offset: Long): (ByteBuffer, Short) = {
+  override def flush(): Unit = {
+    channel.position(channel.size())
+    memoryBuffer.flip()
+    channel.write(memoryBuffer)
+    memoryBuffer.clear()
+  }
+
+  private def getFromMemory(offset: Long): (ByteBuffer) = {
     val currentPosition = memoryBuffer.position()
     val size = {
       memoryBuffer.flip().position(offset.asInstanceOf[Int])
@@ -61,16 +75,15 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
     memoryBuffer.get(bytes, 0, size).clear().position(currentPosition)
     messageBuffer.clear().limit(size)
     messageBuffer.put(bytes, 0, size).flip()
-    (messageBuffer, size)
+    messageBuffer
   }
 
-  private def getFromChannel(offset: Long): (ByteBuffer, Short) = {
-    val size = getSizeFromChannel(offset)
+  private def getFromChannel(offset: Long): (ByteBuffer) = {
     messageBuffer.clear()
-    messageBuffer.limit(size)
+    messageBuffer.limit(getSizeFromChannel(offset))
     channel.read(messageBuffer)
     messageBuffer.flip()
-    (messageBuffer, size)
+    messageBuffer
   }
 
   private def getSizeFromChannel(offset: Long): Short = {
@@ -90,13 +103,6 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
     sizeBuffer.flip()
   }
 
-  private def flush(): Unit = {
-    channel.position(channel.size())
-    memoryBuffer.flip()
-    channel.write(memoryBuffer)
-    memoryBuffer.clear()
-  }
-
   private def openFile(): SeekableByteChannel = {
     try {
       Files.deleteIfExists(path)
@@ -111,13 +117,11 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
 }
 
 object FileByteBank {
+  private[FileByteBank] val defaultMemorySize = 1024 * 128
+  private[FileByteBank] val defaultFlushSize = 1024 * 112
+  private[FileByteBank] def logger = LoggerFactory.getLogger(this.getClass)
   private[FileByteBank] val fileOptions = new java.util.HashSet[OpenOption]()
   fileOptions.add(StandardOpenOption.CREATE)
   fileOptions.add(StandardOpenOption.WRITE)
   fileOptions.add(StandardOpenOption.READ)
-
-  private[FileByteBank] val defaultMemorySize = 1024 * 128
-  private[FileByteBank] val defaultFlushSize = 1024 * 112
-
-  private[FileByteBank] def logger = LoggerFactory.getLogger(this.getClass)
 }

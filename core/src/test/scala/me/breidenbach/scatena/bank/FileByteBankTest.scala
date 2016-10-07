@@ -35,7 +35,8 @@ class FileByteBankTest extends BaseTest {
 
   test("store message") {
     val position = subject.size()
-    val (messagePosition, messageSize) = subject.add(testMessageOne)
+    val messageSize = testMessageOne.remaining()
+    val messagePosition = subject.add(testMessageOne)
     assertThat("returned position is correct", messagePosition, is(equalTo(position)))
     assertThat("new position is correct", subject.size(),
       is(equalTo(position + messageOneLength + shortSize)))
@@ -44,8 +45,10 @@ class FileByteBankTest extends BaseTest {
 
   test("store multiple messages") {
     val startingPosition = subject.size()
-    val (messageOnePosition, messageOneSize) = subject.add(testMessageOne.slice())
-    val (messageTwoPosition, messageTwoSize) = subject.add(testMessageTwo)
+    val messageOneSize = testMessageOne.remaining()
+    val messageTwoSize = testMessageTwo.remaining()
+    val messageOnePosition = subject.add(testMessageOne)
+    val messageTwoPosition = subject.add(testMessageTwo)
 
     assertThat("returned position after first is correct", messageOnePosition, is(equalTo(startingPosition)))
     assertThat("returned position after second is correct", messageTwoPosition,
@@ -56,17 +59,21 @@ class FileByteBankTest extends BaseTest {
   }
 
   test("retrieving messages") {
-    val (messageOnePosition, messageOneSize) = subject.add(testMessageOne)
-    val (messageTwoPosition, messageTwoSize) = subject.add(testMessageTwo)
+    val messageOneSize = testMessageOne.remaining()
+    val messageTwoSize = testMessageTwo.remaining()
+    val messageOnePosition = subject.add(testMessageOne)
+    val messageTwoPosition = subject.add(testMessageTwo)
     val sizeAfterAdds = subject.size()
-    val (resultOne, resultOneSize) = subject.get(messageOnePosition)
+    val resultOne = subject.get(messageOnePosition)
+    val resultOneSize = resultOne.remaining()
     val sizeAfterGettingResultOne = subject.size()
     val resultOneBytes = Array.ofDim[Byte](resultOne.rewind().remaining())
     val resultOneMessage = {
       resultOne.get(resultOneBytes)
       new String(resultOneBytes)
     }
-    val (resultTwo, resultTwoSize) = subject.get(messageTwoPosition)
+    val resultTwo = subject.get(messageTwoPosition)
+    val resultTwoSize = resultTwo.remaining()
     val sizeAfterGettingResultTwo = subject.size()
     val resultTwoBytes = Array.ofDim[Byte](resultTwo.rewind().remaining())
     val resultTwoMessage = {
@@ -87,17 +94,21 @@ class FileByteBankTest extends BaseTest {
   test("retrieving messages from bank with small memory buffer flush size") {
     deleteFiles()
     subject = new FileByteBank(filename, 1024, 20)
-    val (messageOnePosition, messageOneSize) = subject.add(testMessageOne)
-    val (messageTwoPosition, messageTwoSize) = subject.add(testMessageTwo)
+    val messageOneSize = testMessageOne.remaining()
+    val messageTwoSize = testMessageTwo.remaining()
+    val messageOnePosition = subject.add(testMessageOne)
+    val messageTwoPosition = subject.add(testMessageTwo)
     val sizeAfterAdds = subject.size()
-    val (resultOne, resultOneSize) = subject.get(messageOnePosition)
+    val resultOne = subject.get(messageOnePosition)
+    val resultOneSize = resultOne.remaining()
     val sizeAfterGettingResultOne = subject.size()
     val resultOneBytes = Array.ofDim[Byte](resultOne.rewind().remaining())
     val resultOneMessage = {
       resultOne.get(resultOneBytes)
       new String(resultOneBytes)
     }
-    val (resultTwo, resultTwoSize) = subject.get(messageTwoPosition)
+    val resultTwo = subject.get(messageTwoPosition)
+    val resultTwoSize = resultTwo.remaining()
     val sizeAfterGettingResultTwo = subject.size()
     val resultTwoBytes = Array.ofDim[Byte](resultTwo.rewind().remaining())
     val resultTwoMessage = {
@@ -118,13 +129,12 @@ class FileByteBankTest extends BaseTest {
   test("add a message type")
   {
     val position = subject.size()
-    val (messagePosition, messageSize) = subject.add(stringMessage.serializeObject())
+    val serializedObject = stringMessage.serialize()
+    val messageSize = serializedObject.remaining()
+    val messagePosition = subject.add(serializedObject)
 
     assertThat("returned position is correct", messagePosition, is(equalTo(position)))
-    assertThat("new position is correct", subject.size(),
-      is(equalTo(position + messageOneLength + shortSize)))
-    assertThat("message size is equal to bank size", messageSize.asInstanceOf[Int],
-      is(equalTo(stringMessage.serializeObject().length)))
+    assertThat("new position is correct", subject.size(), is(equalTo(position + messageSize + shortSize)))
   }
 
   test("fail to open") {
@@ -139,8 +149,8 @@ object FileByteBankTest {
   val filePath = FileSystems.getDefault.getPath(filename)
   val testTextOne = "This is first test message"
   val testTextTwo = "This is second test message"
-  val messageOneLength = testTextOne.length.asInstanceOf[Short]
-  val messageTwoLength = testTextTwo.length.asInstanceOf[Short]
+  val messageOneLength = testTextOne.length
+  val messageTwoLength = testTextTwo.length
   val testMessageOne = BufferFactory.createBuffer(messageOneLength)
   val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
   val badFileName = "BAD:/FILENAME"

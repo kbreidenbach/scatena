@@ -33,14 +33,15 @@ object SequencerCore {
 
   def sequence(message: Message): Try[ByteBuffer] = maybeByteBank match {
     case Some(bank: ByteBank) =>
-      val (sequenceNumber, size) = bank.add(message.serialize())
+      val serializedMessage = message.serialize()
+      val sequenceNumber = bank.add(message.serialize())
       writeBuffer.clear()
       writeBuffer.position(MessageConstants.messageSequencePosition)
       writeBuffer.putLong(sequenceNumber)
       writeBuffer.position(MessageConstants.messageSizePosition)
-      writeBuffer.putShort(size)
+      writeBuffer.putShort(serializedMessage.remaining().asInstanceOf[Short])
       writeBuffer.position(MessageConstants.messageDataPosition)
-      writeBuffer.put(message.serialize())
+      writeBuffer.put(serializedMessage)
       writeBuffer.flip()
       Success(writeBuffer)
     case _ => Failure(SequencerException("no byte bank or session ID set"))

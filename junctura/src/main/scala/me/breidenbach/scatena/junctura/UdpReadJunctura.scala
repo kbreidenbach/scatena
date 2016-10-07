@@ -7,7 +7,7 @@ import java.nio.channels.DatagramChannel
 import me.breidenbach.scatena.util.BufferFactory
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 10/2/16.
   */
 @throws[JuncturaException]

@@ -6,7 +6,7 @@ import org.hamcrest.Matchers._
 
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 object SerializerTest {

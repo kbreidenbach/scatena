@@ -1,7 +1,7 @@
 package me.breidenbach.scatena.messages
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 10/1/16.
   */
 object MessageConstants {

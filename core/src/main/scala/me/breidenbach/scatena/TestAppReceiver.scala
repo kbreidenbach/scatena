@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 import me.breidenbach.scatena.junctura.UdpReadJunctura
 
 /**
-  * @author kbreidenbach
+  * @author Kevin Breidenbach
   *         Date: 10/2/16.
   */
 object TestAppReceiver extends App {

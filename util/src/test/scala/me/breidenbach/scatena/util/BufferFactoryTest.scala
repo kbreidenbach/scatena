@@ -5,7 +5,7 @@ import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 class BufferFactoryTest extends BaseTest {

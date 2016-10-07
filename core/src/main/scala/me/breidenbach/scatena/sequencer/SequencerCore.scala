@@ -10,7 +10,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 10/2/16.
   */
 object SequencerCore {

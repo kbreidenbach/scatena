@@ -3,7 +3,7 @@ package me.breidenbach.scatena.util
 import java.nio.ByteBuffer
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 object BufferFactory {

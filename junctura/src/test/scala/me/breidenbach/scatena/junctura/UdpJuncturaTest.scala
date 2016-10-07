@@ -8,7 +8,7 @@ import me.breidenbach.scatena.util.BufferFactory
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 10/2/16.
   */
 class UdpJuncturaTest extends BaseTest {

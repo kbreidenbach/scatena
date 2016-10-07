@@ -6,7 +6,7 @@ import java.nio.ByteBuffer
 import scala.util.control.Exception.ignoring
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 object Serializer {

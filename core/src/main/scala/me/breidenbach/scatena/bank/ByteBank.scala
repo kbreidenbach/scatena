@@ -3,7 +3,7 @@ package me.breidenbach.scatena.bank
 import java.nio.ByteBuffer
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 trait ByteBank {

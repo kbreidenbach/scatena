@@ -5,7 +5,7 @@ import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 10/3/16.
   */
 class MessageConstantsTest extends BaseTest {

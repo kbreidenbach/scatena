@@ -3,7 +3,7 @@ package me.breidenbach.scatena.messages
 import java.nio.ByteBuffer
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 case class StringMessage(message: String) extends Message {

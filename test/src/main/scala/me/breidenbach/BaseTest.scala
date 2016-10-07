@@ -10,7 +10,7 @@ import org.scalatest.mockito.MockitoSugar
 import scala.language.implicitConversions
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 trait TestFixture extends FunSuite with AnswerSugar with MockitoSugar with BeforeAndAfterEach with BeforeAndAfterAll

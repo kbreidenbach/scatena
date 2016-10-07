@@ -10,7 +10,7 @@ import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 10/1/16.
   */
 class FileByteBankTest extends BaseTest {
@@ -56,6 +56,37 @@ class FileByteBankTest extends BaseTest {
   }
 
   test("retrieving messages") {
+    val (messageOnePosition, messageOneSize) = subject.add(testMessageOne)
+    val (messageTwoPosition, messageTwoSize) = subject.add(testMessageTwo)
+    val sizeAfterAdds = subject.size()
+    val (resultOne, resultOneSize) = subject.get(messageOnePosition)
+    val sizeAfterGettingResultOne = subject.size()
+    val resultOneBytes = Array.ofDim[Byte](resultOne.rewind().remaining())
+    val resultOneMessage = {
+      resultOne.get(resultOneBytes)
+      new String(resultOneBytes)
+    }
+    val (resultTwo, resultTwoSize) = subject.get(messageTwoPosition)
+    val sizeAfterGettingResultTwo = subject.size()
+    val resultTwoBytes = Array.ofDim[Byte](resultTwo.rewind().remaining())
+    val resultTwoMessage = {
+      resultTwo.get(resultTwoBytes)
+      new String(resultTwoBytes)
+    }
+
+    assertThat("check initial size against sized after get",
+      sizeAfterAdds == sizeAfterGettingResultOne && sizeAfterAdds == sizeAfterGettingResultTwo, is(true))
+    assertThat("message one size is correct", messageOneSize, is(equalTo(messageOneLength)))
+    assertThat("check first returned message size is correct", resultOneSize, is(equalTo(messageOneLength)))
+    assertThat("check first returned message text", resultOneMessage, is(equalTo(testTextOne)))
+    assertThat("message two size is correct", messageTwoSize, is(equalTo(messageTwoLength)))
+    assertThat("check second returned message size is correct", resultTwoSize, is(equalTo(messageTwoLength)))
+    assertThat("check second returned message text", resultTwoMessage, is(equalTo(testTextTwo)))
+  }
+
+  test("retrieving messages from bank with small memory buffer flush size") {
+    deleteFiles()
+    subject = new FileByteBank(filename, 1024, 20)
     val (messageOnePosition, messageOneSize) = subject.add(testMessageOne)
     val (messageTwoPosition, messageTwoSize) = subject.add(testMessageTwo)
     val sizeAfterAdds = subject.size()

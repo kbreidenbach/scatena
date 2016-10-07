@@ -7,7 +7,7 @@ import me.breidenbach.scatena.util.BufferFactory
 import scala.util.{Failure, Success, Try}
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
 object Message {

@@ -4,7 +4,7 @@ import java.net._
 import java.nio.channels.{DatagramChannel, MembershipKey}
 
 /**
-  * @author kbreidenbach 
+  * @author Kevin Breidenbach
   *         Date: 10/2/16.
   */
 class UdpBaseJunctura(multicastAddress: String, port: Int, multicastInterface: String) {

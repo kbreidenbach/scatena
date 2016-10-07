@@ -8,7 +8,7 @@ import me.breidenbach.scatena.util.BufferFactory
 import scala.io.StdIn
 
 /**
-  * @author kbreidenbach
+  * @author Kevin Breidenbach
   *         Date: 10/2/16.
   */
 object TestAppSender extends App {

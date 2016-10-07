@@ -140,6 +140,12 @@ class CircularByteBankTest extends BaseTest {
     assertThat("check message two text", resultFourMessage, is(equalTo(testTextTwo)))
   }
 
+  test("ensure a bank too small can't be created") {
+    assertThrows[ByteBankException] {
+      testSubject = new CircularByteBank(20)
+    }
+  }
+
   private def fillBuffer(message: ByteBuffer, count: Int): Unit = {
     1 to count foreach (_ => testSubject.add {message.rewind(); message})
     message.rewind()

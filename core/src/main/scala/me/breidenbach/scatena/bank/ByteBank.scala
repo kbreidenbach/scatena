@@ -8,9 +8,9 @@ import java.nio.ByteBuffer
   */
 trait ByteBank {
   def reset(): Unit
-  def add(buffer: ByteBuffer): (Long)
-  def add(bytes: Array[Byte]): (Long)
-  def get(offset: Long): (ByteBuffer)
+  def add(buffer: ByteBuffer): Long
+  def add(bytes: Array[Byte]): Long
+  def get(offset: Long): ByteBuffer
   def size(): Long
   def flush(): Unit
 }

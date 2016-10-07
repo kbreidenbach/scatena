@@ -5,8 +5,9 @@ import java.nio.ByteBuffer
 import java.nio.channels.SeekableByteChannel
 import java.nio.file._
 
-import me.breidenbach.scatena.util.{BufferFactory, DataConstants}
 import org.slf4j.LoggerFactory
+
+import me.breidenbach.scatena.util.DataConstants.udpMaxPayload
 
 /**
   * @author Kevin Breidenbach
@@ -14,23 +15,18 @@ import org.slf4j.LoggerFactory
   */
 @throws(classOf[ByteBankException])
 class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemorySize,
-                   flushSize: Int = FileByteBank.defaultFlushSize) extends ByteBank {
-  import me.breidenbach.scatena.util.DataConstants._
+                   flushSize: Int = FileByteBank.defaultFlushSize) extends BufferBackedByteBank(bufferSize) {
   import FileByteBank._
 
-  private val sizeBuffer = BufferFactory.createBuffer(shortSize)
-  private val memoryBuffer = BufferFactory.createBuffer(bufferSize)
-  private val messageBuffer = BufferFactory.createBuffer()
   private val path = FileSystems.getDefault.getPath(filePath)
   private val channel = openFile()
-  private val bytes = Array.ofDim[Byte](DataConstants.udpMaxPayload)
 
   override def reset(): Unit = {
     channel.truncate(0)
     memoryBuffer.clear()
   }
 
-  override def add(buffer: ByteBuffer): (Long) = {
+  override def add(buffer: ByteBuffer): Long = {
     val size = buffer.remaining().asInstanceOf[Short]
     val bufferPosition = {
       if (memoryBuffer.position() > flushSize) flush()
@@ -41,14 +37,7 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
     channel.size() + bufferPosition
   }
 
-  override def add(bytes: Array[Byte]): (Long) = {
-    messageBuffer.clear()
-    messageBuffer.put(bytes)
-    messageBuffer.flip()
-    add(messageBuffer)
-  }
-
-  override def get(offset: Long): (ByteBuffer) = {
+  override def get(offset: Long): ByteBuffer = {
     val channelSize = channel.size()
     if (channelSize > 0 && offset < channelSize) getFromChannel(offset)
     else if ((offset - channelSize) < memoryBuffer.position()) getFromMemory(offset - channelSize)
@@ -64,18 +53,6 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
     memoryBuffer.flip()
     channel.write(memoryBuffer)
     memoryBuffer.clear()
-  }
-
-  private def getFromMemory(offset: Long): (ByteBuffer) = {
-    val currentPosition = memoryBuffer.position()
-    val size = {
-      memoryBuffer.flip().position(offset.asInstanceOf[Int])
-      memoryBuffer.getShort
-    }
-    memoryBuffer.get(bytes, 0, size).clear().position(currentPosition)
-    messageBuffer.clear().limit(size)
-    messageBuffer.put(bytes, 0, size).flip()
-    messageBuffer
   }
 
   private def getFromChannel(offset: Long): (ByteBuffer) = {
@@ -95,12 +72,6 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
       sizeBuffer.getShort()
     }
     if (size < udpMaxPayload) size else udpMaxPayload
-  }
-
-  private def setSizeBuffer(size: Short): Unit = {
-    sizeBuffer.clear()
-    sizeBuffer.putShort(size)
-    sizeBuffer.flip()
   }
 
   private def openFile(): SeekableByteChannel = {

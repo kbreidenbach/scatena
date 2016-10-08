@@ -48,5 +48,5 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
 }
 
 object BufferBackedByteBank {
-  val emptyBuffer = BufferFactory.createBuffer(0).asReadOnlyBuffer()
+  val emptyBuffer = BufferFactory.emptyReadOnlyBuffer()
 }

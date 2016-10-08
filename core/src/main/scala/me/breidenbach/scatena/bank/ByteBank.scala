@@ -7,9 +7,6 @@ import java.nio.ByteBuffer
   *         Date: 9/28/16.
   */
 trait ByteBank {
-
-  def reset(): Unit
-
   /**
     * add data to the bank
     * @param buffer the byte buffer containing the data. Note: data is added from current position to limit
@@ -26,6 +23,7 @@ trait ByteBank {
   def get(offset: Long): ByteBuffer
   def size(): Long
   def flush(): Unit
+  def reset(): Unit
 }
 
 case class ByteBankException(message: String, cause: Throwable = null) extends Exception(message, cause)

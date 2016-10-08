@@ -20,11 +20,15 @@ class UdpJuncturaChannelTest extends BaseTest with JuncturaListener {
   override def beforeEach(): Unit = {
     sendBuffer.rewind()
     testSubject = new UdpJuncturaChannel(juncturaName, testHost, testPort, networkInterface)
-    testSubject.setListener(this)
+    assert(testSubject.setListener(this).isSuccess, is(true))
   }
 
   override def afterEach(): Unit = {
     testSubject.close()
+  }
+
+  test("set listener again") {
+    assertThat(testSubject.setListener(this).isFailure, is(true))
   }
 
   test("send and receive") {

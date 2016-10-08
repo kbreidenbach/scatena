@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 import scala.util.{Failure, Success, Try}
 
 /**
-  * @author Kevin Breidenbach
+  * @author kbreidenbach
   *         Date: 10/7/16.
   */
 class UdpJuncturaChannel(val name: String, multicastAddress: String, port: Int, multicastInterface: String)

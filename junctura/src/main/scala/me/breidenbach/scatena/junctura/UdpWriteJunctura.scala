@@ -17,9 +17,8 @@ class UdpWriteJunctura(val name: String, multicastAddress: String, port: Int, mu
 
   getChannel(connect)
 
-
   @throws[JuncturaException]
-  def send(buffer: ByteBuffer) = {
+  def send(buffer: ByteBuffer): Unit = {
     try {
       maybeKey.foreach(key => if (key.isValid) getChannel(connect).write(buffer))
     } catch {

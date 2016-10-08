@@ -3,8 +3,9 @@ package me.breidenbach.scatena.sequencer
 import java.nio.ByteBuffer
 
 import me.breidenbach.scatena.bank.ByteBank
-import me.breidenbach.scatena.messages.{MessageConstants, Message}
+import me.breidenbach.scatena.messages.{Message, MessageConstants}
 import me.breidenbach.scatena.util.BufferFactory
+import org.slf4j.LoggerFactory
 
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
@@ -17,6 +18,7 @@ object SequencerCore {
 
   private var maybeByteBank: Option[ByteBank] = None
   private val writeBuffer = BufferFactory.createBuffer()
+  private val logger = LoggerFactory.getLogger(this.getClass)
 
   def setByteBank(sessionId: Long, byteBank: ByteBank): Try[Unit] = maybeByteBank match {
     case None =>
@@ -24,7 +26,10 @@ object SequencerCore {
       writeBuffer.clear()
       writeBuffer.putLong(sessionId)
       Success(None)
-    case _ => Failure(SequencerException("byte bank and session ID already set"))
+    case _ =>
+      val error = "byte bank and session ID already set"
+      logger.error(error)
+      Failure(SequencerException(error))
   }
 
   def reset(): Unit = {

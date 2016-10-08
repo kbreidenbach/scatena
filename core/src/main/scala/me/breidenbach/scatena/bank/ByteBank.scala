@@ -20,6 +20,7 @@ trait ByteBank {
     * @return
     */
   def add(bytes: Array[Byte]): Long
+  def firstOffset(): Long
   def get(offset: Long): ByteBuffer
   def size(): Long
   def flush(): Unit

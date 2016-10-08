@@ -83,6 +83,8 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
         throw ByteBankException(message, e)
     }
   }
+
+  override def firstOffset(): Long = 0
 }
 
 object FileByteBank {

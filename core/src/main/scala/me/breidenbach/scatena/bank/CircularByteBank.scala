@@ -78,6 +78,8 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
     lastOffset = offset
     offset
   }
+
+  override def firstOffset(): Long = offsetAtZero
 }
 
 object CircularByteBank {

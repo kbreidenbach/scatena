@@ -3,28 +3,19 @@ import java.nio.ByteBuffer
 
 import org.slf4j.LoggerFactory
 
-import scala.util.{Failure, Success, Try}
-
 /**
   * @author kbreidenbach
   *         Date: 10/7/16.
   */
 class UdpJuncturaChannel(val name: String, multicastAddress: String, port: Int, multicastInterface: String)
   extends JuncturaChannel {
-  import UdpJuncturaChannel.logger
 
   val sender = new UdpWriteJunctura(name, multicastAddress, port, multicastInterface)
   val receiver = new UdpReadJunctura(name, multicastAddress, port, multicastInterface)
   var maybeListener: Option[JuncturaListener] = None
 
-  override def setListener(listener: JuncturaListener): Try[Unit] = maybeListener match {
-    case None =>
-      maybeListener = Some(listener)
-      Success(None)
-    case _ =>
-      val error = "listener already set"
-      logger.error(error)
-      Failure(JuncturaException(error))
+  override def setListener(listener: JuncturaListener): Unit = {
+    maybeListener = Some(listener)
   }
 
   override def send(buffer: ByteBuffer): Unit = {

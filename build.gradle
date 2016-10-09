@@ -26,4 +26,11 @@ subprojects {
         useAnt = false
         useCompileDaemon = false
     }
+
+    //noinspection GroovyMissingReturnStatement
+    test {
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
 }

@@ -22,18 +22,12 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
 
   private var nextOffset = 0
   private var offsetAtZero = 0
-  private var lastOffset = 0
-  private var lastOffsetInBuffer = 0
-  private var lastPosition = 0
-  private var lastPositionInBuffer = 0
+  private var minimumOffset = 0
+  private var minimumOffsetPosition = 0
 
   override def reset(): Unit = {
     offsetAtZero = 0
     nextOffset = 0
-    lastOffset = 0
-    lastOffsetInBuffer = 0
-    lastPosition = 0
-    lastPositionInBuffer = 0
     memoryBuffer.clear()
   }
 
@@ -49,11 +43,8 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
   override def get(offset: Long): ByteBuffer = {
     if (offset > nextOffset) emptyBuffer()
     else {
-      val usedBufferFromStart = nextOffset - offsetAtZero
-      val remainingBuffer = bufferSize - usedBufferFromStart
-      val minimumOffset = if (offsetAtZero - remainingBuffer < lastOffsetInBuffer) lastOffsetInBuffer else offsetAtZero
       if (offset < minimumOffset || offset >= nextOffset) emptyBuffer()
-      else if (offset < offsetAtZero) getFromMemory(lastPositionInBuffer)
+      else if (offset < offsetAtZero) getFromMemory(minimumOffsetPosition)
       else getFromMemory(offset - offsetAtZero)
     }
   }
@@ -62,24 +53,44 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
 
   override def flush(): Unit = {}
 
+  override def firstOffset(): Long = offsetAtZero
+
   private def calculateOffsetAndSetBufferPosition(size: Int): Int = {
+    val pos = memoryBuffer.position()
     val offset = nextOffset
-    val lastPos = memoryBuffer.position()
     nextOffset += size
 
-    if (lastPos + size > bufferSize) {
-      memoryBuffer.clear()
+    if (pos + size > bufferSize) {
       offsetAtZero = offset
-      lastOffsetInBuffer = lastOffset
-      lastPositionInBuffer = lastPosition
+      memoryBuffer.clear()
     }
 
-    lastPosition = lastPos
-    lastOffset = offset
+    findMinimumOffsetAndPosition(size)
+
     offset
   }
 
-  override def firstOffset(): Long = offsetAtZero
+  private def findMinimumOffsetAndPosition(size: Int): Unit = {
+    val currentPosition = memoryBuffer.position()
+    val nextPos = currentPosition + size
+
+    memoryBuffer.flip().limit(bufferSize)
+    calculateMinimumOffsetAndPosition()
+    memoryBuffer.clear().position(currentPosition)
+
+    def calculateMinimumOffsetAndPosition(): Unit = {
+      if (offsetAtZero > 0 && nextPos > minimumOffsetPosition) {
+        val minimumOffsetSize = shortSize + { memoryBuffer.position(minimumOffsetPosition); memoryBuffer.getShort() }
+        minimumOffsetPosition += minimumOffsetSize
+        minimumOffset += minimumOffsetSize
+        if (minimumOffsetPosition > bufferSize) {
+          minimumOffsetPosition = 0
+          minimumOffset = offsetAtZero
+        }
+        calculateMinimumOffsetAndPosition()
+      }
+    }
+  }
 }
 
 object CircularByteBank {

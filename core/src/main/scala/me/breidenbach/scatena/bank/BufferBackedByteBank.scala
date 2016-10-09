@@ -28,7 +28,7 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
   protected def getFromMemory(offset: Long): ByteBuffer = {
     val currentPosition = memoryBuffer.position()
     val size = {
-      memoryBuffer.flip().position(offset.asInstanceOf[Int])
+      memoryBuffer.flip().limit(bufferSize).position(offset.asInstanceOf[Int])
       memoryBuffer.getShort
     }
     memoryBuffer.get(bytes, 0, size).clear().position(currentPosition)

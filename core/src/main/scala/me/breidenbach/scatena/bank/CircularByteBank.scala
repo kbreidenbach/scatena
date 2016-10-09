@@ -53,7 +53,7 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
 
   override def flush(): Unit = {}
 
-  override def firstOffset(): Long = offsetAtZero
+  override def firstOffset(): Long = minimumOffset
 
   private def calculateOffsetAndSetBufferPosition(size: Int): Int = {
     val pos = memoryBuffer.position()

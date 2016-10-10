@@ -27,13 +27,14 @@ object BufferFactory {
 
   def createBuffer(size: Int): ByteBuffer = {
     if (size == udpMaxPayload) createBuffer()
-    else if (useDirect) ByteBuffer.allocateDirect(size) else ByteBuffer.allocate(size)
+    else if (useDirect) ByteBuffer.allocateDirect(size).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+    else ByteBuffer.allocate(size).order(java.nio.ByteOrder.LITTLE_ENDIAN)
   }
 
   def createBuffer(): ByteBuffer = {
     val buffer = if (availableBuffers.nonEmpty) availableBuffers.remove(0) else createUdpSizeBuffer()
     fillBuffer()
-    buffer
+    buffer.order(java.nio.ByteOrder.LITTLE_ENDIAN)
   }
 
   def emptyReadOnlyBuffer(): ByteBuffer = {
@@ -46,7 +47,7 @@ object BufferFactory {
     }
   }
 
-  private def createUdpSizeBuffer() =
+  private def createUdpSizeBuffer(): ByteBuffer =
     if (useDirect) ByteBuffer.allocateDirect(udpMaxPayload)
     else ByteBuffer.allocate(udpMaxPayload)
 

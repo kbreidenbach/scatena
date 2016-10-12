@@ -18,7 +18,9 @@ object Message {
   }
 
   val messageIdSize = 4
-  val messageIdToDeserializer: Map[Int, DeSerializer[_ <: Message]] = Map(0 -> StringMessage)
+  val messageIdToDeserializer: Map[Int, DeSerializer[_ <: Message]] = Map(
+    -1 -> ReplayRequestMessage,
+    0 -> StringMessage)
 
   private val numberConverterBuffer = BufferFactory.createBuffer()
   private val shortBytes = Array.ofDim[Byte](shortSize)

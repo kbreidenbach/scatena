@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 import org.slf4j.LoggerFactory
 
 /**
-  * @author kbreidenbach
+  * @author Kevin Breidenbach
   *         Date: 10/7/16.
   */
 class UdpJuncturaChannel(val name: String, multicastAddress: String, port: Int, multicastInterface: String)

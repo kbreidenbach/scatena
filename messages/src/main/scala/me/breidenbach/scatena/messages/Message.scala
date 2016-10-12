@@ -13,12 +13,14 @@ import scala.util.{Failure, Success, Try}
   */
 object Message {
 
+
   trait DeSerializer[T <: Message] {
     def deSerialize(buffer: ByteBuffer): T
   }
 
   val messageIdSize = 4
   val messageIdToDeserializer: Map[Int, DeSerializer[_ <: Message]] = Map(
+    -2 -> SequenceUnavailableMessage,
     -1 -> ReplayRequestMessage,
     0 -> StringMessage)
 
@@ -81,7 +83,7 @@ object Message {
 trait Message {
   import Message.messageIdSize
 
-  def serialize(): ByteBuffer = {
+  private[messages] def serialize(): ByteBuffer = {
     val objectBytes = serializeObject()
     val buffer = BufferFactory.createBuffer(messageIdSize + objectBytes.length)
     buffer.putInt(uniqueMessageId())

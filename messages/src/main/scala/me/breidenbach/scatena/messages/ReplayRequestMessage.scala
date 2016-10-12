@@ -2,34 +2,26 @@ package me.breidenbach.scatena.messages
 
 import java.nio.ByteBuffer
 
-import me.breidenbach.scatena.util.DataConstants.longSize
-
 /**
   * @author Kevin Breidenbach 
   *         Date: 10/9/16.
   */
-case class ReplayRequestMessage(startSequence: Int, endSequence: Int) extends Message {
+case class ReplayRequestMessage(var startSequence: Int, var endSequence: Int) extends Message with SequenceIntervalMessage {
   override protected def serializeObject(): Array[Byte] = {
-    import Message.toByteArray
-    val startAndEnd = (startSequence.asInstanceOf[Long] << 32) | ( endSequence & 0xffffffffL)
-    toByteArray(startAndEnd)
+    convertToByteArray(startSequence, endSequence)
   }
 
   override protected def uniqueMessageId() = -1
 }
 
-object ReplayRequestMessage extends Message.DeSerializer[ReplayRequestMessage] {
-  val bytes = Array.ofDim[Byte](longSize)
-  var startAndEnd: Long = _
-  var startSequence: Int = _
-  var endSequence: Int = _
+object ReplayRequestMessage extends Message.DeSerializer[ReplayRequestMessage] with SequenceIntervalMessage {
+
+  val replayRequestMessage = ReplayRequestMessage(0, 0)
 
   override def deSerialize(buffer: ByteBuffer): ReplayRequestMessage = {
-    import Message.toLong
-    buffer.get(bytes)
-    startAndEnd = toLong(bytes)
-    startSequence = (startAndEnd >> 32).asInstanceOf[Int]
-    endSequence = startAndEnd.asInstanceOf[Int]
-    ReplayRequestMessage(startSequence, endSequence)
+    convertToStartAndEndSequence(buffer)
+    replayRequestMessage.startSequence = startSeq
+    replayRequestMessage.endSequence = endSeq
+    replayRequestMessage
   }
 }

@@ -10,7 +10,7 @@ import org.hamcrest.Matchers._
   *         Date: 9/28/16.
   */
 object StringMessageTest {
-  val stringMessage = StringMessage("Test Data")
+  val stringMessage = new StringMessage("Test Data")
 }
 
 class StringMessageTest extends BaseTest {
@@ -24,8 +24,8 @@ class StringMessageTest extends BaseTest {
 
   test("deserialization") {
     val serializedBuffer = Serializer.serialize(stringMessage)
-    val deserializedObject = Message.deSerialize(serializedBuffer.left.get) getOrElse StringMessage("BAD")
-    assertThat(deserializedObject.asInstanceOf[StringMessage], is(equalTo(stringMessage)))
+    val deserializedObject = Message.deSerialize(serializedBuffer.left.get) getOrElse new StringMessage("BAD")
+    assertThat(deserializedObject.asInstanceOf[StringMessage].message, is(equalTo(stringMessage.message)))
   }
 }
 

@@ -2,6 +2,9 @@ package me.breidenbach.scatena.bank
 
 import java.nio.ByteBuffer
 
+import me.breidenbach.scatena.util.DataConstants
+import me.breidenbach.scatena.util.DataConstants.shortSize
+
 /**
   * @author Kevin Breidenbach
   *         Date: 9/28/16.
@@ -21,10 +24,12 @@ trait ByteBank {
     */
   def add(bytes: Array[Byte]): Long
   def firstOffset(): Long
+  def lastOffset(): Long
   def get(offset: Long): ByteBuffer
   def size(): Long
   def flush(): Unit
   def reset(): Unit
+  def findNextOffset(offset: Long, size: Int): Long = offset + size + shortSize
 }
 
 case class ByteBankException(message: String, cause: Throwable = null) extends Exception(message, cause)

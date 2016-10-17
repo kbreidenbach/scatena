@@ -20,9 +20,9 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
     throw ByteBankException(message)
   }
 
-  private var nextOffset = 0
-  private var offsetAtZero = 0
-  private var minimumOffset = 0
+  private var nextOffset = 0L
+  private var offsetAtZero = 0L
+  private var minimumOffset = 0L
   private var minimumOffsetPosition = 0
 
   override def reset(): Unit = {
@@ -36,6 +36,7 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
       val offset = calculateOffsetAndSetBufferPosition(buffer.remaining() + shortSize)
       setSizeBuffer(buffer.remaining().asInstanceOf[Short])
       memoryBuffer.put(sizeBuffer).put(buffer)
+      lastAddedOffset = offset
       offset
     }
   }
@@ -55,7 +56,7 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
 
   override def firstOffset(): Long = minimumOffset
 
-  private def calculateOffsetAndSetBufferPosition(size: Int): Int = {
+  private def calculateOffsetAndSetBufferPosition(size: Int): Long = {
     val pos = memoryBuffer.position()
     val offset = nextOffset
     nextOffset += size

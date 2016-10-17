@@ -34,7 +34,8 @@ class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemor
     }
     setSizeBuffer(size)
     memoryBuffer.put(sizeBuffer).put(buffer)
-    channel.size() + bufferPosition
+    lastAddedOffset = channel.size() + bufferPosition
+    lastAddedOffset
   }
 
   override def get(offset: Long): ByteBuffer = {

@@ -5,6 +5,11 @@ import java.nio.ByteBuffer
 import me.breidenbach.scatena.bank.ByteBank
 import me.breidenbach.scatena.junctura.{JuncturaChannel, JuncturaListener}
 import me.breidenbach.scatena.messages.MessageConstants._
+import me.breidenbach.scatena.messages.{Message, ReplayRequestMessage}
+import me.breidenbach.scatena.util.BufferFactory
+import me.breidenbach.scatena.util.DataConstants.udpMaxPayload
+
+import scala.util.Success
 
 /**
   * @author Kevin Breidenbach
@@ -12,14 +17,60 @@ import me.breidenbach.scatena.messages.MessageConstants._
   */
 class ReplayService(multicastChannel: JuncturaChannel, byteBank: ByteBank) extends JuncturaListener {
 
+  private val sendBuffer = BufferFactory.createBuffer()
+  private val flags = 0.asInstanceOf[Byte]
+
+  setBit(resendFlagPos, flags)
+
+  sendBuffer.put(messageFlagsPosition, flags)
+
   override def onRead(buffer: ByteBuffer): Unit = buffer.remaining() match {
     case x if x > messageDataPosition =>
-      val flags = buffer.get(messageFlagsPosition)
-      if (bitSet(flags, resendFlagPos)) handleRequest(buffer: ByteBuffer)
+      if (!bitSet(buffer.get(messageFlagsPosition), resendFlagPos)) handleRequest(buffer)
     case _ =>
   }
 
-  private def handleRequest(buffer: ByteBuffer): Unit = {
+  private def handleRequest(buffer: ByteBuffer): Unit = Message.deSerialize(buffer) match {
+    case Success(request: ReplayRequestMessage) => processRequest(request)
+    case _ =>
+  }
 
+  private def processRequest(replayRequestMessage: ReplayRequestMessage): Unit = {
+    val startSequence = replayRequestMessage.startSequence
+    val endSequence = replayRequestMessage.endSequence
+    if (startSequence < byteBank.firstOffset()) {
+      sendSequenceUnavailableMessage(startSequence,
+        if (endSequence < byteBank.firstOffset()) endSequence else byteBank.firstOffset())
+    }
+    if (endSequence > byteBank.firstOffset()) {
+      get(
+        if (startSequence > byteBank.firstOffset()) startSequence else byteBank.firstOffset(),
+        if (endSequence < byteBank.lastOffset()) endSequence else byteBank.lastOffset())
+    }
+  }
+
+  private def get(startOffset: Long, endOffset: Long): Unit = {
+    if (startOffset <= byteBank.lastOffset() && endOffset >= byteBank.firstOffset()) {
+      byteBank.get(startOffset) match {
+        case buffer:ByteBuffer if buffer.limit() == 0 =>
+          if (startOffset < endOffset) get(endOffset, endOffset)
+        case buffer:ByteBuffer =>
+          val nextOffset = byteBank.findNextOffset(startOffset, buffer.remaining())
+          sendResendMessages(buffer)
+          if (nextOffset <= endOffset) get(nextOffset, endOffset)
+      }
+    }
+  }
+
+  private def sendSequenceUnavailableMessage(startSequence: Long, endSequence: Long): Unit = {
+
+  }
+
+  private def sendResendMessages(buffer: ByteBuffer): Unit = {
+    if (buffer.remaining() + messageDataPosition <= udpMaxPayload) {
+      sendBuffer.clear().position(messageDataPosition)
+      sendBuffer.put(buffer).flip()
+      multicastChannel.send(sendBuffer)
+    }
   }
 }

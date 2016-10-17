@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 import me.breidenbach.scatena.util.{BufferFactory, DataConstants}
 import me.breidenbach.scatena.util.DataConstants._
 
+import scala.collection.mutable.ListBuffer
+
 /**
   * @author Kevin Breidenbach
   *         Date: 10/7/16
@@ -15,6 +17,7 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
   protected val messageBuffer = BufferFactory.createBuffer()
   protected val sizeBuffer = BufferFactory.createBuffer(shortSize)
   protected val bytes = Array.ofDim[Byte](DataConstants.udpMaxPayload)
+  protected var lastAddedOffset = 0L
 
   override def add(bytes: Array[Byte]): Long = {
     if (bytes.length > bufferSize) -1 else {
@@ -25,16 +28,22 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
     }
   }
 
+  override def lastOffset(): Long = lastAddedOffset
+
   protected def getFromMemory(offset: Long): ByteBuffer = {
     val currentPosition = memoryBuffer.position()
     val size = {
       memoryBuffer.flip().limit(bufferSize).position(offset.asInstanceOf[Int])
       memoryBuffer.getShort
     }
-    memoryBuffer.get(bytes, 0, size).clear().position(currentPosition)
-    messageBuffer.clear().limit(size)
-    messageBuffer.put(bytes, 0, size).flip()
-    messageBuffer
+    if (size > udpMaxPayload) {
+      emptyBuffer()
+    } else {
+      memoryBuffer.get(bytes, 0, size).clear().position(currentPosition)
+      messageBuffer.clear().limit(size)
+      messageBuffer.put(bytes, 0, size).flip()
+      messageBuffer
+    }
   }
 
   protected def setSizeBuffer(size: Short): Unit = {
@@ -43,8 +52,8 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
     sizeBuffer.flip()
   }
 
-
   protected def emptyBuffer() = BufferBackedByteBank.emptyBuffer
+
 }
 
 object BufferBackedByteBank {

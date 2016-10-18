@@ -14,20 +14,22 @@ class ReplayRequestMessageTest extends BaseTest {
 
   test ("serialization") {
     val serializedObject = Serializer.serialize(replayRequestMessage)
-    assertThat(serializedObject.isLeft, is(true))
-    assertThat(serializedObject.left.get.remaining(),
-      is(equalTo(DataConstants.longSize.asInstanceOf[Int] + Message.messageIdSize)))
+    assertThat(serializedObject.isSuccess, is(true))
+    assertThat(serializedObject.get.remaining(),
+      is(equalTo(DataConstants.longSize.asInstanceOf[Int] * 2 + Message.messageIdSize)))
   }
 
   test ("deserialize") {
     val serializedObject = Serializer.serialize(replayRequestMessage)
-    val deserializedObject = Message.deSerialize(serializedObject.left.get) getOrElse ReplayRequestMessage(0, 0)
+    val deserializedObject = Message.deSerialize(serializedObject.get) getOrElse ReplayRequestMessage(0, 0)
     assertThat(deserializedObject.asInstanceOf[ReplayRequestMessage], is(equalTo(replayRequestMessage)))
+    assertThat(deserializedObject.asInstanceOf[ReplayRequestMessage].startSequence, is(equalTo(startSequence)))
+    assertThat(deserializedObject.asInstanceOf[ReplayRequestMessage].endSequence, is(equalTo(endSequence)))
   }
 }
 
 object ReplayRequestMessageTest {
-  val startSequence = 1234
-  val endSequence = 63353
+  val startSequence = 1234L
+  val endSequence = 63353L
   val replayRequestMessage = ReplayRequestMessage(startSequence, endSequence)
 }

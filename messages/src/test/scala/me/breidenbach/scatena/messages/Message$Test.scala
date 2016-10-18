@@ -9,7 +9,7 @@ import org.hamcrest.Matchers._
   * @author Kevin Breidenbach 
   *         Date: 10/9/16.
   */
-class MessageTest extends BaseTest {
+class Message$Test extends BaseTest {
 
   test("short conversion") {
     val expected: Short = 32134
@@ -30,5 +30,14 @@ class MessageTest extends BaseTest {
     val bytes = Message.toByteArray(expected)
 
     assertThat(Message.toLong(bytes), is(equalTo(expected)))
+  }
+
+  test("double long conversion") {
+    val frontLong = 12347289L
+    val endLong = 927381277L
+    val bytes = Message.toByteArray(frontLong, endLong)
+
+    assertThat(Message.toDoubleLong(bytes)._1, is(equalTo(frontLong)))
+    assertThat(Message.toDoubleLong(bytes)._2, is(equalTo(endLong)))
   }
 }

@@ -18,13 +18,13 @@ class StringMessageTest extends BaseTest {
 
   test("serialization") {
     val serializedBuffer = Serializer.serialize(stringMessage)
-    assertThat(serializedBuffer.isLeft, is(true))
-    assertThat(serializedBuffer.left.get.capacity(), is(equalTo(stringMessage.length() + Message.messageIdSize)))
+    assertThat(serializedBuffer.isSuccess, is(true))
+    assertThat(serializedBuffer.get.capacity(), is(equalTo(stringMessage.length() + Message.messageIdSize)))
   }
 
   test("deserialization") {
     val serializedBuffer = Serializer.serialize(stringMessage)
-    val deserializedObject = Message.deSerialize(serializedBuffer.left.get) getOrElse new StringMessage("BAD")
+    val deserializedObject = Message.deSerialize(serializedBuffer.get) getOrElse new StringMessage("BAD")
     assertThat(deserializedObject.asInstanceOf[StringMessage].message, is(equalTo(stringMessage.message)))
   }
 }

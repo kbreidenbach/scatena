@@ -13,7 +13,6 @@ import scala.util.{Failure, Success, Try}
   */
 object Message {
 
-
   trait DeSerializer[T <: Message] {
     def deSerialize(buffer: ByteBuffer): T
   }
@@ -28,6 +27,7 @@ object Message {
   private val shortBytes = Array.ofDim[Byte](shortSize)
   private val intBytes = Array.ofDim[Byte](intSize)
   private val longBytes = Array.ofDim[Byte](longSize)
+  private val doubleLongBytes = Array.ofDim[Byte](longSize * 2)
 
   def toShort(bytes: Array[Byte]): Short = {
     toType[Short](bytes, (buffer) => buffer.getShort())
@@ -41,6 +41,10 @@ object Message {
     toType[Long](bytes, (buffer) => buffer.getLong())
   }
 
+  def toDoubleLong(bytes: Array[Byte]): (Long, Long) = {
+    toType[(Long, Long)](bytes, (buffer) => (buffer.getLong(), buffer.getLong()))
+  }
+
   def toByteArray(short: Short): Array[Byte] = {
     toByteArray(shortBytes, (buffer) => buffer.putShort(short))
   }
@@ -51,6 +55,10 @@ object Message {
 
   def toByteArray(long: Long): Array[Byte] = {
     toByteArray(longBytes, (buffer) => buffer.putLong(long))
+  }
+
+  def toByteArray(frontLong: Long, endLong: Long): Array[Byte] = {
+    toByteArray(doubleLongBytes, (buffer) => buffer.putLong(frontLong).putLong(endLong))
   }
 
   private def toType[T](bytes: Array[Byte], converter: (ByteBuffer) => T): T = {
@@ -68,11 +76,10 @@ object Message {
   }
 
   def deSerialize(buffer: ByteBuffer): Try[Message] = {
-    val messageTypeId = buffer.getInt(0)
+    val messageTypeId = buffer.getInt()
     val deSerializer = messageIdToDeserializer.get(messageTypeId)
 
     deSerializer.foreach(d => {
-      buffer.position(messageIdSize)
       return Success(d.deSerialize(buffer))
     })
 

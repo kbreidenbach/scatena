@@ -14,14 +14,14 @@ class SequenceUnavailableMessageTest extends BaseTest {
 
   test ("serialization") {
     val serializedObject = Serializer.serialize(sequenceUnavailableMessage)
-    assertThat(serializedObject.isLeft, is(true))
-    assertThat(serializedObject.left.get.remaining(),
-      is(equalTo(DataConstants.longSize.asInstanceOf[Int] + Message.messageIdSize)))
+    assertThat(serializedObject.isSuccess, is(true))
+    assertThat(serializedObject.get.remaining(),
+      is(equalTo(DataConstants.longSize.asInstanceOf[Int] * 2 + Message.messageIdSize)))
   }
 
   test ("deserialize") {
     val serializedObject = Serializer.serialize(sequenceUnavailableMessage)
-    val deserializedObject = Message.deSerialize(serializedObject.left.get) getOrElse ReplayRequestMessage(0, 0)
+    val deserializedObject = Message.deSerialize(serializedObject.get) getOrElse ReplayRequestMessage(0, 0)
     assertThat(deserializedObject.asInstanceOf[SequenceUnavailableMessage], is(equalTo(sequenceUnavailableMessage)))
   }
 }

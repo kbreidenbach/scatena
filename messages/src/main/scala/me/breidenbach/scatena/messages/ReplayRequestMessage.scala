@@ -6,7 +6,8 @@ import java.nio.ByteBuffer
   * @author Kevin Breidenbach 
   *         Date: 10/9/16.
   */
-case class ReplayRequestMessage(var startSequence: Int, var endSequence: Int) extends Message with SequenceIntervalMessage {
+case class ReplayRequestMessage(var startSequence: Long, var endSequence: Long)
+  extends Message with SequenceIntervalMessage {
   override protected def serializeObject(): Array[Byte] = {
     convertToByteArray(startSequence, endSequence)
   }

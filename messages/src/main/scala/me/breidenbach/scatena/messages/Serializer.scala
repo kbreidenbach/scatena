@@ -3,6 +3,7 @@ package me.breidenbach.scatena.messages
 import java.io.{ByteArrayOutputStream, IOException, ObjectOutputStream}
 import java.nio.ByteBuffer
 
+import scala.util.{Failure, Success, Try}
 import scala.util.control.Exception.ignoring
 
 /**
@@ -10,14 +11,14 @@ import scala.util.control.Exception.ignoring
   *         Date: 9/28/16.
   */
 object Serializer {
-  def serialize[T <: Message](serializable: T): Either[ByteBuffer, Error] = {
+  def serialize[T <: Message](serializable: T): Try[ByteBuffer] = {
     val byteArrayOutputStream = new ByteArrayOutputStream()
     val objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)
 
     try {
-      Left(serializable.serialize())
+      Success(serializable.serialize())
     } catch {
-      case e: IOException => Right(new Error("unable to serialize object", e))
+      case e: IOException => Failure(new Error("unable to serialize object", e))
     } finally {
       close(objectOutputStream)
       close(byteArrayOutputStream)

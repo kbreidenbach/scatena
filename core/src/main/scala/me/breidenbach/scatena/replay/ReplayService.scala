@@ -5,7 +5,7 @@ import java.nio.ByteBuffer
 import me.breidenbach.scatena.bank.ByteBank
 import me.breidenbach.scatena.junctura.{JuncturaChannel, JuncturaListener}
 import me.breidenbach.scatena.messages.MessageConstants._
-import me.breidenbach.scatena.messages.{Message, ReplayRequestMessage}
+import me.breidenbach.scatena.messages.{Message, ReplayRequestMessage, SequenceUnavailableMessage, Serializer}
 import me.breidenbach.scatena.util.BufferFactory
 import me.breidenbach.scatena.util.DataConstants.udpMaxPayload
 
@@ -17,16 +17,18 @@ import scala.util.Success
   */
 class ReplayService(multicastChannel: JuncturaChannel, byteBank: ByteBank) extends JuncturaListener {
 
+  private val sequenceUnavailableMessage = SequenceUnavailableMessage(0, 0)
   private val sendBuffer = BufferFactory.createBuffer()
-  private val flags = 0.asInstanceOf[Byte]
+  private val resendFlags = 0.asInstanceOf[Byte]
+  private val notResenfFlags = 0.asInstanceOf[Byte]
 
-  setBit(resendFlagPos, flags)
-
-  sendBuffer.put(messageFlagsPosition, flags)
+  setBit(resendFlagPos, resendFlags)
+  multicastChannel.setListener(this)
 
   override def onRead(buffer: ByteBuffer): Unit = buffer.remaining() match {
     case x if x > messageDataPosition =>
-      if (!bitSet(buffer.get(messageFlagsPosition), resendFlagPos)) handleRequest(buffer)
+      if (!bitSet(buffer.get(messageFlagsPosition), resendFlagPos))
+        handleRequest({buffer.position(messageDataPosition); buffer})
     case _ =>
   }
 
@@ -56,19 +58,22 @@ class ReplayService(multicastChannel: JuncturaChannel, byteBank: ByteBank) exten
           if (startOffset < endOffset) get(endOffset, endOffset)
         case buffer:ByteBuffer =>
           val nextOffset = byteBank.findNextOffset(startOffset, buffer.remaining())
-          sendResendMessages(buffer)
+          sendMessgae(buffer, resendFlags)
           if (nextOffset <= endOffset) get(nextOffset, endOffset)
       }
     }
   }
 
   private def sendSequenceUnavailableMessage(startSequence: Long, endSequence: Long): Unit = {
-
+    sequenceUnavailableMessage.startSequence = startSequence
+    sequenceUnavailableMessage.endSequence = endSequence
+    Serializer.serialize(sequenceUnavailableMessage).foreach( buffer => sendMessgae(buffer, notResenfFlags))
   }
 
-  private def sendResendMessages(buffer: ByteBuffer): Unit = {
+  private def sendMessgae(buffer: ByteBuffer, flags: Byte): Unit = {
     if (buffer.remaining() + messageDataPosition <= udpMaxPayload) {
       sendBuffer.clear().position(messageDataPosition)
+      sendBuffer.put(messageFlagsPosition, flags)
       sendBuffer.put(buffer).flip()
       multicastChannel.send(sendBuffer)
     }

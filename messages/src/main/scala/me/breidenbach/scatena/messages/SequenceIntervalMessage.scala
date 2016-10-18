@@ -9,22 +9,22 @@ import me.breidenbach.scatena.util.DataConstants._
   *         Date: 10/11/16.
   */
 trait SequenceIntervalMessage {
-  val bytes = Array.ofDim[Byte](longSize)
-  var startAndEnd: Long = _
-  var startSeq: Int = _
-  var endSeq: Int = _
+  val bytes = Array.ofDim[Byte](longSize * 2)
+  var sequences: (Long, Long) = _
+  var startSeq: Long = _
+  var endSeq: Long = _
 
-  def convertToByteArray(startSequence: Int, endSequence: Int): Array[Byte] = {
+  def convertToByteArray(startSequence: Long, endSequence: Long): Array[Byte] = {
     import Message.toByteArray
-    startAndEnd = (startSequence.asInstanceOf[Long] << 32) | ( endSequence & 0xffffffffL)
-    toByteArray(startAndEnd)
+    val buff = toByteArray(startSequence, endSequence)
+    buff
   }
 
   def convertToStartAndEndSequence(buffer: ByteBuffer): Unit = {
-    import Message.toLong
+    import Message.toDoubleLong
     buffer.get(bytes)
-    startAndEnd = toLong(bytes)
-    startSeq = (startAndEnd >> 32).asInstanceOf[Int]
-    endSeq = startAndEnd.asInstanceOf[Int]
+    sequences = toDoubleLong(bytes)
+    startSeq = sequences._1
+    endSeq = sequences._2
   }
 }

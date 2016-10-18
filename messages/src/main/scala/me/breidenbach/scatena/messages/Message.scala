@@ -79,8 +79,8 @@ object Message {
     val messageTypeId = buffer.getInt()
     val deSerializer = messageIdToDeserializer.get(messageTypeId)
 
-    deSerializer.foreach(d => {
-      return Success(d.deSerialize(buffer))
+    deSerializer.foreach(message => {
+      return Success(message.deSerialize(buffer))
     })
 
     Failure(new IllegalArgumentException("no deserializable object found"))

@@ -7,7 +7,7 @@ import me.breidenbach.BaseTest
 import me.breidenbach.scatena.bank.{ByteBank, CircularByteBank}
 import me.breidenbach.scatena.junctura.{JuncturaListener, UdpJuncturaChannel}
 import me.breidenbach.scatena.messages.MessageConstants.messageDataPosition
-import me.breidenbach.scatena.messages.{Message, ReplayRequestMessage, SequenceUnavailableMessage, Serializer}
+import me.breidenbach.scatena.messages.{Message, ReplayRequestMessage, Serializer}
 import me.breidenbach.scatena.util.BufferFactory
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._

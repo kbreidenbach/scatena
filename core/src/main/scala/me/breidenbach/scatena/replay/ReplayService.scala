@@ -17,7 +17,7 @@ import scala.util.Success
   */
 class ReplayService(multicastChannel: JuncturaChannel, byteBank: ByteBank) extends JuncturaListener {
 
-  private val sequenceUnavailableMessage = SequenceUnavailableMessage(0, 0)
+  private val sequenceUnavailableMessage = SequenceUnavailableMessage(0, 0, 0, 0)
   private val sendBuffer = BufferFactory.createBuffer()
   private val resendFlags = 0.asInstanceOf[Byte]
   private val notResenfFlags = 0.asInstanceOf[Byte]
@@ -67,6 +67,8 @@ class ReplayService(multicastChannel: JuncturaChannel, byteBank: ByteBank) exten
   private def sendSequenceUnavailableMessage(startSequence: Long, endSequence: Long): Unit = {
     sequenceUnavailableMessage.startSequence = startSequence
     sequenceUnavailableMessage.endSequence = endSequence
+    sequenceUnavailableMessage.firstAvailableSequence = byteBank.firstOffset()
+    sequenceUnavailableMessage.lastAvailableSequence = byteBank.lastOffset()
     Serializer.serialize(sequenceUnavailableMessage).foreach( buffer => sendMessgae(buffer, notResenfFlags))
   }
 

@@ -16,7 +16,7 @@ class SequenceUnavailableMessageTest extends BaseTest {
     val serializedObject = Serializer.serialize(sequenceUnavailableMessage)
     assertThat(serializedObject.isSuccess, is(true))
     assertThat(serializedObject.get.remaining(),
-      is(equalTo(DataConstants.longSize.asInstanceOf[Int] * 2 + Message.messageIdSize)))
+      is(equalTo(DataConstants.longSize.asInstanceOf[Int] * 4 + Message.messageIdSize)))
   }
 
   test ("deserialize") {
@@ -29,5 +29,5 @@ class SequenceUnavailableMessageTest extends BaseTest {
 object SequenceUnavailableMessageTest {
   val startSequence = 233567
   val endSequence = 7612672
-  val sequenceUnavailableMessage = SequenceUnavailableMessage(startSequence, endSequence)
+  val sequenceUnavailableMessage = SequenceUnavailableMessage(startSequence, endSequence, 123, 6565)
 }

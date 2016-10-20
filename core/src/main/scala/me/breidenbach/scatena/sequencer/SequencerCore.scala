@@ -3,7 +3,7 @@ package me.breidenbach.scatena.sequencer
 import java.nio.ByteBuffer
 
 import me.breidenbach.scatena.bank.ByteBank
-import me.breidenbach.scatena.messages.{Message, MessageConstants}
+import me.breidenbach.scatena.messages.{Message, MessageConstants, Serializer}
 import me.breidenbach.scatena.util.BufferFactory
 import org.slf4j.LoggerFactory
 
@@ -38,17 +38,21 @@ object SequencerCore {
 
   def sequence(message: Message): Try[ByteBuffer] = maybeByteBank match {
     case Some(bank: ByteBank) =>
-      val serializedMessage = message.serialize()
-      val sequenceNumber = bank.add(message.serialize())
-      writeBuffer.clear()
-      writeBuffer.position(MessageConstants.messageSequencePosition)
-      writeBuffer.putLong(sequenceNumber)
-      writeBuffer.position(MessageConstants.messageSizePosition)
-      writeBuffer.putShort(serializedMessage.remaining().asInstanceOf[Short])
-      writeBuffer.position(MessageConstants.messageDataPosition)
-      writeBuffer.put(serializedMessage)
-      writeBuffer.flip()
-      Success(writeBuffer)
+      Serializer.serialize(message) match {
+        case Success(serializedMessage) =>
+          val sequenceNumber = bank.add(serializedMessage.slice())
+          writeBuffer.clear()
+          writeBuffer.position(MessageConstants.messageSequencePosition)
+          writeBuffer.putLong(sequenceNumber)
+          writeBuffer.position(MessageConstants.messageSizePosition)
+          writeBuffer.putShort(serializedMessage.remaining().asInstanceOf[Short])
+          writeBuffer.position(MessageConstants.messageDataPosition)
+          writeBuffer.put(serializedMessage)
+          writeBuffer.flip()
+          Success(writeBuffer)
+        case Failure(error) => Failure(SequencerException("unable to serialize message", error))
+
+      }
     case _ => Failure(SequencerException("no byte bank or session ID set"))
   }
 }

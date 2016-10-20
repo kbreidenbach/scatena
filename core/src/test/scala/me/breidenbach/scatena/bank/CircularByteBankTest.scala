@@ -162,7 +162,7 @@ object CircularByteBankTest {
   val testMessageOne = BufferFactory.createBuffer(messageOneLength)
   val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
   val badFileName = "BAD:/FILENAME"
-  val stringMessage = StringMessage(testTextOne)
+  val stringMessage = new StringMessage(testTextOne)
 
   testMessageOne.put(testTextOne.getBytes(StandardCharsets.UTF_8))
   testMessageOne.flip()

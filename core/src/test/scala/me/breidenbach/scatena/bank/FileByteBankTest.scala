@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{FileSystems, Files}
 
 import me.breidenbach.BaseTest
-import me.breidenbach.scatena.messages.StringMessage
+import me.breidenbach.scatena.messages.{Serializer, StringMessage}
 import me.breidenbach.scatena.util.BufferFactory
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
@@ -129,7 +129,7 @@ class FileByteBankTest extends BaseTest {
   test("add a message type")
   {
     val position = testSubject.size()
-    val serializedObject = stringMessage.serialize()
+    val serializedObject = Serializer.serialize(stringMessage).get
     val messageSize = serializedObject.remaining()
     val messagePosition = testSubject.add(serializedObject)
 
@@ -154,7 +154,7 @@ object FileByteBankTest {
   val testMessageOne = BufferFactory.createBuffer(messageOneLength)
   val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
   val badFileName = "BAD:/FILENAME"
-  val stringMessage = StringMessage(testTextOne)
+  val stringMessage = new StringMessage(testTextOne)
 
   testMessageOne.put(testTextOne.getBytes(StandardCharsets.UTF_8))
   testMessageOne.flip()

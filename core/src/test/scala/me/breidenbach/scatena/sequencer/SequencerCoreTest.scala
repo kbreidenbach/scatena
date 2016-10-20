@@ -4,7 +4,7 @@ import java.nio.file.{FileSystems, Files}
 
 import me.breidenbach.BaseTest
 import me.breidenbach.scatena.bank.{ByteBank, FileByteBank}
-import me.breidenbach.scatena.messages.{MessageConstants, StringMessage}
+import me.breidenbach.scatena.messages.{MessageConstants, Serializer, StringMessage}
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 
@@ -33,12 +33,13 @@ class SequencerCoreTest extends BaseTest {
 
   test("ensure sequencer core creates correct buffer") {
 
-    val message = StringMessage("Test Message")
+    val message = new StringMessage("Test Message")
     val buffer = SequencerCore.sequence(message)
 
     assertThat(buffer.isSuccess, is (true))
     assertThat(buffer.get.limit(), is(equalTo(buffer.get.remaining())))
-    assertThat(buffer.get.limit(), is(equalTo(message.serialize().remaining() + MessageConstants.messageDataPosition)))
+    assertThat(buffer.get.limit(), is(equalTo(Serializer.serialize(message).get.remaining() +
+      MessageConstants.messageDataPosition)))
   }
 }
 

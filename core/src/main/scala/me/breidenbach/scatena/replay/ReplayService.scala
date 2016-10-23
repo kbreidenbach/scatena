@@ -47,20 +47,24 @@ class ReplayService(multicastChannel: JuncturaChannel, byteBank: ByteBank) exten
     if (endSequence > byteBank.firstOffset()) {
       get(
         if (startSequence > byteBank.firstOffset()) startSequence else byteBank.firstOffset(),
-        if (endSequence < byteBank.lastOffset()) endSequence else byteBank.lastOffset())
+        if (endSequence < byteBank.lastOffset()) endSequence else byteBank.lastOffset(),
+        startSequence,
+        endSequence)
     }
   }
 
-  private def get(startOffset: Long, endOffset: Long): Unit = {
+  private def get(startOffset: Long, endOffset: Long, requestedStartSeq: Long, requestedEndSeq: Long): Unit = {
     if (startOffset <= byteBank.lastOffset() && endOffset >= byteBank.firstOffset()) {
       byteBank.get(startOffset) match {
         case buffer:ByteBuffer if buffer.limit() == 0 =>
-          if (startOffset < endOffset) get(endOffset, endOffset)
+          if (startOffset < endOffset) get(endOffset, endOffset, requestedStartSeq, requestedEndSeq)
         case buffer:ByteBuffer =>
           val nextOffset = byteBank.findNextOffset(startOffset, buffer.remaining())
           sendMessgae(buffer, resendFlags)
-          if (nextOffset <= endOffset) get(nextOffset, endOffset)
+          if (nextOffset <= endOffset) get(nextOffset, endOffset, requestedStartSeq, requestedEndSeq)
       }
+    } else {
+      sendSequenceUnavailableMessage(requestedStartSeq, requestedEndSeq)
     }
   }
 

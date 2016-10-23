@@ -7,10 +7,12 @@ import me.breidenbach.BaseTest
 import me.breidenbach.scatena.bank.{ByteBank, CircularByteBank}
 import me.breidenbach.scatena.junctura.{JuncturaListener, UdpJuncturaChannel}
 import me.breidenbach.scatena.messages.MessageConstants.messageDataPosition
-import me.breidenbach.scatena.messages.{Message, ReplayRequestMessage, Serializer}
+import me.breidenbach.scatena.messages.{Message, ReplayRequestMessage, SequenceUnavailableMessage, Serializer}
 import me.breidenbach.scatena.util.BufferFactory
 import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
+
+import scala.util.Random
 
 /**
   * @author Kevin Breidenbach 
@@ -25,6 +27,10 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
   var readFun: ByteBuffer => Unit = (_) => fail("unexpected message received")
 
   clientJuncturaChannel.setListener(this)
+
+  override def beforeEach(): Unit = {
+    byteBank.reset()
+  }
 
   override def afterAll(): Unit = {
     replayJuncturaChannel.close()
@@ -48,9 +54,22 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
       }
       messageCount match {
         case 1 => checkMessage(message => {
-          assertThat(message.isInstanceOf[ReplayRequestMessage], is(true))
-          assertThat(message.asInstanceOf[ReplayRequestMessage].startSequence, is(equalTo(startSequence)))
-          assertThat(message.asInstanceOf[ReplayRequestMessage].endSequence, is(equalTo(endSequence)))
+          assertThat("message 1 type check", message.isInstanceOf[ReplayRequestMessage], is(true))
+          assertThat("message 1 start sequence", message.asInstanceOf[ReplayRequestMessage].startSequence,
+            is(equalTo(startSequence)))
+          assertThat("message 1 end sequence", message.asInstanceOf[ReplayRequestMessage].endSequence,
+            is(equalTo(endSequence)))
+        })
+        case 2 => checkMessage(message => {
+          assertThat("message 2 type check", message.isInstanceOf[SequenceUnavailableMessage], is(true))
+          assertThat("message 2 start sequence", message.asInstanceOf[SequenceUnavailableMessage].startSequence,
+            is(equalTo(startSequence)))
+          assertThat("message 2 end sequence", message.asInstanceOf[SequenceUnavailableMessage].endSequence,
+            is(equalTo(endSequence)))
+          assertThat("message 2 first available",
+            message.asInstanceOf[SequenceUnavailableMessage].firstAvailableSequence, is(equalTo(0L)))
+          assertThat("message 2 last available",
+            message.asInstanceOf[SequenceUnavailableMessage].lastAvailableSequence, is(equalTo(0L)))
         })
         case _ => fail("unexpected message")
       }
@@ -60,17 +79,68 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
 
     clientJuncturaChannel.receive()
     replayJuncturaChannel.receive()
-
-    // Should receive nothing (TODO: should this be a error message?)
     clientJuncturaChannel.receive()
   }
 
   test ("byte bank with data") {
+    val data = collection.mutable.Map.empty[Long, Array[Byte]]
+    val size = 900
+    val range = 0 until ((CircularByteBank.minimumSize / size) - 1)
+    val replayMessage = ReplayRequestMessage(0, 0)
+    var messageCount = 1
 
+    range.foreach(_ => {
+      val bytes = getByteArray(size)
+      data += (byteBank.add(bytes) -> bytes)
+    })
+
+    val keys = data.keySet.toArray.sorted
+    val startSequence = keys(1)
+    val endSequence = keys(4)
+
+    readFun = (buffer) => {
+      def checkMessage(assertFun: ByteBuffer => Unit): Unit = {
+        assertFun(buffer)
+      }
+      messageCount match {
+        case 1 => checkMessage(buffer => {
+          buffer.position(messageDataPosition)
+          val message = Message.deSerialize(buffer).get
+          messageCount += 1
+          assertThat("message 1 type check", message.isInstanceOf[ReplayRequestMessage], is(true))
+          assertThat("message 1 start sequence", message.asInstanceOf[ReplayRequestMessage].startSequence,
+            is(equalTo(startSequence)))
+          assertThat("message 1 end sequence", message.asInstanceOf[ReplayRequestMessage].endSequence,
+            is(equalTo(endSequence)))
+        })
+        case x if x > 1 && x <= 5 => checkMessage(buffer => {
+          buffer.position(messageDataPosition)
+          val foundBytes = Array.ofDim[Byte](buffer.remaining())
+          val storedBytes = data(keys(x - 1))
+          messageCount += 1
+          buffer.get(foundBytes)
+          assertThat(foundBytes, is(equalTo(storedBytes)))
+        })
+        case _ => fail("unexpected message")
+      }
+    }
+
+    replayMessage.startSequence = startSequence
+    replayMessage.endSequence = endSequence
+    sendMessage(Serializer.serialize(replayMessage).get)
+
+    clientJuncturaChannel.receive()
+    replayJuncturaChannel.receive()
+    clientJuncturaChannel.receive()
   }
 
   test ("byte bank that has rotated") {
 
+  }
+
+  private def getByteArray(size: Int): Array[Byte] = {
+    val byte = random.nextInt(Byte.MaxValue).asInstanceOf[Byte]
+    Array.fill[Byte](size)(byte)
   }
 
   private def sendMessage(buffer: ByteBuffer): Unit = {
@@ -88,7 +158,8 @@ object ReplayServiceTest {
   val testPort = 17001
   val juncturaName = "test junctura"
   val replayJuncturaName = "replay junctura"
-  val byteBank: ByteBank = new CircularByteBank(20000)
+  val byteBank: ByteBank = new CircularByteBank(CircularByteBank.minimumSize)
+  val random = new Random(12)
 
   def getLocalNetworkInterface: NetworkInterface = {
     val interfaces = NetworkInterface.getNetworkInterfaces

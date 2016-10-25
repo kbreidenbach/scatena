@@ -21,18 +21,20 @@ import scala.util.Random
 class ReplayServiceTest extends BaseTest with JuncturaListener {
   import ReplayServiceTest._
 
-  val clientJuncturaChannel = new UdpJuncturaChannel(juncturaName, testHost, testPort, networkInterface)
-  val replayJuncturaChannel = new UdpJuncturaChannel(replayJuncturaName, testHost, testPort, networkInterface)
-  var testSubject: ReplayService = new ReplayService(replayJuncturaChannel, byteBank)
+  var clientJuncturaChannel: UdpJuncturaChannel = _
+  var replayJuncturaChannel: UdpJuncturaChannel = _
+  var testSubject: ReplayService = _
   var readFun: ByteBuffer => Unit = (_) => fail("unexpected message received")
 
-  clientJuncturaChannel.setListener(this)
-
   override def beforeEach(): Unit = {
+    clientJuncturaChannel = new UdpJuncturaChannel(juncturaName, testHost, testPort, networkInterface)
+    replayJuncturaChannel = new UdpJuncturaChannel(replayJuncturaName, testHost, testPort, networkInterface)
+    testSubject = new ReplayService(replayJuncturaChannel, byteBank)
     byteBank.reset()
+    clientJuncturaChannel.setListener(this)
   }
 
-  override def afterAll(): Unit = {
+  override def afterEach(): Unit = {
     replayJuncturaChannel.close()
     clientJuncturaChannel.close()
   }
@@ -134,8 +136,173 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
     clientJuncturaChannel.receive()
   }
 
-  test ("byte bank that has rotated") {
+  test ("circular byte bank that has rotated") {
+    val data = collection.mutable.Map.empty[Long, Array[Byte]]
+    val size = 900
+    val range = 0 until ((CircularByteBank.minimumSize / size) * 2.5).asInstanceOf[Int]
+    val replayMessage = ReplayRequestMessage(0, 0)
+    var messageCount = 1
 
+    range.foreach(_ => {
+      val bytes = getByteArray(size)
+      data += (byteBank.add(bytes) -> bytes)
+    })
+
+    val keys = data.keySet.toArray.sorted
+    val firstKey = {
+      var index = 0
+      while (keys(index) < byteBank.firstOffset()) index += 1
+      index
+    }
+    val startSequence = keys(firstKey + 2)
+    val endSequence = keys(firstKey + 5)
+
+    readFun = (buffer) => {
+      def checkMessage(assertFun: ByteBuffer => Unit): Unit = {
+        assertFun(buffer)
+      }
+      messageCount match {
+        case 1 => checkMessage(buffer => {
+          buffer.position(messageDataPosition)
+          val message = Message.deSerialize(buffer).get
+          messageCount += 1
+          assertThat("message 1 type check", message.isInstanceOf[ReplayRequestMessage], is(true))
+          assertThat("message 1 start sequence", message.asInstanceOf[ReplayRequestMessage].startSequence,
+            is(equalTo(startSequence)))
+          assertThat("message 1 end sequence", message.asInstanceOf[ReplayRequestMessage].endSequence,
+            is(equalTo(endSequence)))
+        })
+        case x if x > 1 && x <= 2 => checkMessage(buffer => {
+          buffer.position(messageDataPosition)
+          val foundBytes = Array.ofDim[Byte](buffer.remaining())
+          val storedBytes = data(keys(x - 1))
+          messageCount += 1
+          buffer.get(foundBytes)
+          assertThat(foundBytes, is(equalTo(storedBytes)))
+        })
+        case _ => fail("unexpected message")
+      }
+    }
+
+    replayMessage.startSequence = startSequence
+    replayMessage.endSequence = endSequence
+    sendMessage(Serializer.serialize(replayMessage).get)
+
+    clientJuncturaChannel.receive()
+    replayJuncturaChannel.receive()
+    clientJuncturaChannel.receive()
+  }
+
+  test ("circular byte bank that has rotated with replay request out of bounds") {
+    val data = collection.mutable.Map.empty[Long, Array[Byte]]
+    val size = 900
+    val range = 0 until ((CircularByteBank.minimumSize / size) * 2.5).asInstanceOf[Int]
+    val replayMessage = ReplayRequestMessage(0, 0)
+    var messageCount = 1
+
+    range.foreach(_ => {
+      val bytes = getByteArray(size)
+      data += (byteBank.add(bytes) -> bytes)
+    })
+
+    val keys = data.keySet.toArray.sorted
+    val startSequence = keys(1)
+    val endSequence = keys(4)
+
+    readFun = (buffer) => {
+      def checkMessage(assertFun: Message => Unit): Unit = {
+        buffer.position(messageDataPosition)
+        val message = Message.deSerialize(buffer).get
+        messageCount += 1
+        assertFun(message)
+      }
+      messageCount match {
+        case 1 => checkMessage(message => {
+          assertThat("message 1 type check", message.isInstanceOf[ReplayRequestMessage], is(true))
+          assertThat("message 1 start sequence", message.asInstanceOf[ReplayRequestMessage].startSequence,
+            is(equalTo(startSequence)))
+          assertThat("message 1 end sequence", message.asInstanceOf[ReplayRequestMessage].endSequence,
+            is(equalTo(endSequence)))
+        })
+        case 2 => checkMessage(message => {
+          assertThat("message 2 type check", message.isInstanceOf[SequenceUnavailableMessage], is(true))
+          assertThat("message 2 start sequence", message.asInstanceOf[SequenceUnavailableMessage].startSequence,
+            is(equalTo(startSequence)))
+          assertThat("message 2 end sequence", message.asInstanceOf[SequenceUnavailableMessage].endSequence,
+            is(equalTo(endSequence)))
+          assertThat("message 2 first available",
+            message.asInstanceOf[SequenceUnavailableMessage].firstAvailableSequence, is(equalTo(byteBank.firstOffset())))
+          assertThat("message 2 last available",
+            message.asInstanceOf[SequenceUnavailableMessage].lastAvailableSequence, is(equalTo(byteBank.lastOffset())))
+        })
+        case _ => fail("unexpected message")
+      }
+    }
+
+    replayMessage.startSequence = startSequence
+    replayMessage.endSequence = endSequence
+    sendMessage(Serializer.serialize(replayMessage).get)
+
+    clientJuncturaChannel.receive()
+    replayJuncturaChannel.receive()
+    clientJuncturaChannel.receive()
+  }
+
+  test ("circular byte bank that has rotated and request past last sequence") {
+    val data = collection.mutable.Map.empty[Long, Array[Byte]]
+    val size = 900
+    val range = 0 until ((CircularByteBank.minimumSize / size) * 2.5).asInstanceOf[Int]
+    val replayMessage = ReplayRequestMessage(0, 0)
+    var messageCount = 1
+
+    range.foreach(_ => {
+      val bytes = getByteArray(size)
+      data += (byteBank.add(bytes) -> bytes)
+    })
+
+    val keys = data.keySet.toArray.sorted
+    val lastKey = {
+      var index = 0
+      while (keys(index) < byteBank.lastOffset()) index += 1
+      index
+    }
+    val startSequence = keys(lastKey - 2)
+    val endSequence = keys(lastKey) + 2100
+
+    readFun = (buffer) => {
+      def checkMessage(assertFun: ByteBuffer => Unit): Unit = {
+        assertFun(buffer)
+      }
+      messageCount match {
+        case 1 => checkMessage(buffer => {
+          buffer.position(messageDataPosition)
+          val message = Message.deSerialize(buffer).get
+          messageCount += 1
+          assertThat("message 1 type check", message.isInstanceOf[ReplayRequestMessage], is(true))
+          assertThat("message 1 start sequence", message.asInstanceOf[ReplayRequestMessage].startSequence,
+            is(equalTo(startSequence)))
+          assertThat("message 1 end sequence", message.asInstanceOf[ReplayRequestMessage].endSequence,
+            is(equalTo(endSequence)))
+        })
+        case x if x > 1 && x <= 4 => checkMessage(buffer => {
+          buffer.position(messageDataPosition)
+          val foundBytes = Array.ofDim[Byte](buffer.remaining())
+          val storedBytes = data(keys(lastKey + x - 4))
+          messageCount += 1
+          buffer.get(foundBytes)
+          assertThat(foundBytes, is(equalTo(storedBytes)))
+        })
+        case _ => fail("unexpected message")
+      }
+    }
+
+    replayMessage.startSequence = startSequence
+    replayMessage.endSequence = endSequence
+    sendMessage(Serializer.serialize(replayMessage).get)
+
+    clientJuncturaChannel.receive()
+    replayJuncturaChannel.receive()
+    clientJuncturaChannel.receive()
   }
 
   private def getByteArray(size: Int): Array[Byte] = {

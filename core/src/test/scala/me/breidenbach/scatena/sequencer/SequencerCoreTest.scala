@@ -33,7 +33,7 @@ class SequencerCoreTest extends BaseTest {
 
   test("ensure sequencer core creates correct buffer") {
 
-    val message = new StringMessage("Test Message")
+    val message = new StringMessage(sender, "Test Message")
     val buffer = SequencerCore.sequence(message)
 
     assertThat(buffer.isSuccess, is (true))
@@ -44,6 +44,7 @@ class SequencerCoreTest extends BaseTest {
 }
 
 object SequencerCoreTest {
+  private[SequencerCoreTest] val sender = "test"
   private[SequencerCoreTest] val filename = "TEST_FILE"
   private[SequencerCoreTest] val sessionId = 232
 }

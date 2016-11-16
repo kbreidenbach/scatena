@@ -145,6 +145,7 @@ class FileByteBankTest extends BaseTest {
 }
 
 object FileByteBankTest {
+  val sender = "Test"
   val filename = "TestBank"
   val filePath = FileSystems.getDefault.getPath(filename)
   val testTextOne = "This is first test message"
@@ -154,7 +155,7 @@ object FileByteBankTest {
   val testMessageOne = BufferFactory.createBuffer(messageOneLength)
   val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
   val badFileName = "BAD:/FILENAME"
-  val stringMessage = new StringMessage(testTextOne)
+  val stringMessage = new StringMessage(sender, testTextOne)
 
   testMessageOne.put(testTextOne.getBytes(StandardCharsets.UTF_8))
   testMessageOne.flip()

@@ -15,9 +15,9 @@ import scala.util.Success
   * @author Kevin Breidenbach
   *         Date: 10/7/16.
   */
-class ReplayService(multicastChannel: JuncturaChannel, byteBank: ByteBank) extends JuncturaListener {
+class ReplayService(name: String, multicastChannel: JuncturaChannel, byteBank: ByteBank) extends JuncturaListener {
 
-  private val sequenceUnavailableMessage = SequenceUnavailableMessage(0, 0, 0, 0)
+  private val sequenceUnavailableMessage = SequenceUnavailableMessage(name, 0, 0, 0, 0)
   private val sendBuffer = BufferFactory.createBuffer()
   private val resendFlags = 0.asInstanceOf[Byte]
   private val notResenfFlags = 0.asInstanceOf[Byte]

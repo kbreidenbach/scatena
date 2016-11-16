@@ -9,6 +9,7 @@ object MessageConstants {
 
   // flag positions in the byte
   val resendFlagPos: Byte = 0
+  val senderNameSize: Int = 10
 
   // communication buffer positions and sizes
   val messageHeaderPosition: Short = 0

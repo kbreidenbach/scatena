@@ -29,7 +29,7 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
   override def beforeEach(): Unit = {
     clientJuncturaChannel = new UdpJuncturaChannel(juncturaName, testHost, testPort, networkInterface)
     replayJuncturaChannel = new UdpJuncturaChannel(replayJuncturaName, testHost, testPort, networkInterface)
-    testSubject = new ReplayService(replayJuncturaChannel, byteBank)
+    testSubject = new ReplayService(replayServiceName, replayJuncturaChannel, byteBank)
     byteBank.reset()
     clientJuncturaChannel.setListener(this)
   }
@@ -44,7 +44,7 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
   test ("empty byte bank") {
     val startSequence = 112L
     val endSequence = 1231L
-    val replayMessage = ReplayRequestMessage(startSequence, endSequence)
+    val replayMessage = ReplayRequestMessage(sender, startSequence, endSequence)
     var messageCount = 1
 
     readFun = (buffer) => {
@@ -88,7 +88,7 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
     val data = collection.mutable.Map.empty[Long, Array[Byte]]
     val size = 900
     val range = 0 until ((CircularByteBank.minimumSize / size) - 1)
-    val replayMessage = ReplayRequestMessage(0, 0)
+    val replayMessage = ReplayRequestMessage(sender, 0, 0)
     var messageCount = 1
 
     range.foreach(_ => {
@@ -140,7 +140,7 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
     val data = collection.mutable.Map.empty[Long, Array[Byte]]
     val size = 900
     val range = 0 until ((CircularByteBank.minimumSize / size) * 2.5).asInstanceOf[Int]
-    val replayMessage = ReplayRequestMessage(0, 0)
+    val replayMessage = ReplayRequestMessage(sender, 0, 0)
     var messageCount = 1
 
     range.foreach(_ => {
@@ -197,7 +197,7 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
     val data = collection.mutable.Map.empty[Long, Array[Byte]]
     val size = 900
     val range = 0 until ((CircularByteBank.minimumSize / size) * 2.5).asInstanceOf[Int]
-    val replayMessage = ReplayRequestMessage(0, 0)
+    val replayMessage = ReplayRequestMessage(sender, 0, 0)
     var messageCount = 1
 
     range.foreach(_ => {
@@ -252,7 +252,7 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
     val data = collection.mutable.Map.empty[Long, Array[Byte]]
     val size = 900
     val range = 0 until ((CircularByteBank.minimumSize / size) * 2.5).asInstanceOf[Int]
-    val replayMessage = ReplayRequestMessage(0, 0)
+    val replayMessage = ReplayRequestMessage(sender, 0, 0)
     var messageCount = 1
 
     range.foreach(_ => {
@@ -319,6 +319,8 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
 }
 
 object ReplayServiceTest {
+  val replayServiceName = "Replay"
+  val sender = "test"
   val networkInterface = getLocalNetworkInterface.getName
   val sendBuffer = BufferFactory.createBuffer()
   val testHost = "230.1.1.1"

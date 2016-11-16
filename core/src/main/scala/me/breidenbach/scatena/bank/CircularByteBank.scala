@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
   * @author Kevin Breidenbach
   *         Date: 10/7/16
   */
-@throws(classOf[ByteBankException])
+@throws[ByteBankException]
 class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) extends BufferBackedByteBank(bufferSize) {
   import CircularByteBank._
 

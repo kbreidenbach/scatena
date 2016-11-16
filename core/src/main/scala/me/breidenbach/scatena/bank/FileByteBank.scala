@@ -13,7 +13,7 @@ import me.breidenbach.scatena.util.DataConstants.udpMaxPayload
   * @author Kevin Breidenbach
   *         Date: 9/28/16.
   */
-@throws(classOf[ByteBankException])
+@throws[ByteBankException]
 class FileByteBank(filePath: String, bufferSize: Int = FileByteBank.defaultMemorySize,
                    flushSize: Int = FileByteBank.defaultFlushSize) extends BufferBackedByteBank(bufferSize) {
   import FileByteBank._

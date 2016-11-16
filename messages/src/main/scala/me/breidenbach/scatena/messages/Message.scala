@@ -1,8 +1,9 @@
 package me.breidenbach.scatena.messages
 
+import java.io.IOException
 import java.nio.ByteBuffer
 
-import me.breidenbach.scatena.util.BufferFactory
+import me.breidenbach.scatena.util.{BufferFactory, DataConstants}
 import me.breidenbach.scatena.util.DataConstants._
 
 import scala.util.{Failure, Success, Try}
@@ -12,12 +13,16 @@ import scala.util.{Failure, Success, Try}
   *         Date: 9/28/16.
   */
 object Message {
+  import MessageConstants.senderNameSize
+  import DataConstants.intSize
 
   trait DeSerializer[T <: Message] {
-    def deSerialize(buffer: ByteBuffer): T
+    def deSerialize(sender: String, buffer: ByteBuffer): T
   }
 
+  val sender = Array.ofDim[Byte](10)
   val messageIdSize = 4
+  val positionOfObjectData = intSize + senderNameSize
   val messageIdToDeserializer: Map[Int, DeSerializer[_ <: Message]] = Map(
     -2 -> SequenceUnavailableMessage,
     -1 -> ReplayRequestMessage,
@@ -77,29 +82,50 @@ object Message {
 
   def deSerialize(buffer: ByteBuffer): Try[Message] = {
     val messageTypeId = buffer.getInt()
-    val deSerializer = messageIdToDeserializer.get(messageTypeId)
+    val deSerializer = {
+      buffer.get(sender)
+      messageIdToDeserializer.get(messageTypeId)
+    }
 
     deSerializer.foreach(message => {
-      return Success(message.deSerialize(buffer))
+      return Success(message.deSerialize(trimSender(sender), buffer))
     })
 
     Failure(new IllegalArgumentException("no deserializable object found"))
   }
+
+  def trimSender(sender: Array[Byte]): String = {
+    new String(sender).trim
+  }
 }
 
 trait Message {
-  import Message.messageIdSize
 
+  import Message.positionOfObjectData
+
+  val buffer = BufferFactory.createBuffer()
+
+  @throws[IOException]
   private[messages] def serialize(): ByteBuffer = {
+    if (senderName().length <= 10)
+      serializeMessage()
+    else
+      throw new IOException("senderName overflow > 10 bytes")
+  }
+
+  private def serializeMessage(): ByteBuffer = {
     val objectBytes = serializeObject()
-    val buffer = BufferFactory.createBuffer(messageIdSize + objectBytes.length)
+    buffer.clear()
     buffer.putInt(uniqueMessageId())
+    buffer.put(senderName().getBytes())
+    while(buffer.position() < positionOfObjectData) buffer.put(32.asInstanceOf[Byte])
     buffer.put(objectBytes)
     buffer.asReadOnlyBuffer()
     buffer.flip()
     buffer
   }
 
+  protected def senderName(): String
   protected def serializeObject(): Array[Byte]
   protected def uniqueMessageId(): Int
 }

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 
 /**
   * @author Kevin Breidenbach 
-  *         Date: 10/11/16.
+  * Date: 10/11/16.
   */
 case class SequenceUnavailableMessage (var sender: String, var startSequence: Long, var endSequence: Long,
                                        var firstAvailableSequence: Long, var lastAvailableSequence: Long)
@@ -15,7 +15,7 @@ case class SequenceUnavailableMessage (var sender: String, var startSequence: Lo
       convertToByteArray(firstAvailableSequence, lastAvailableSequence)
   }
 
-  override protected def uniqueMessageId() = -2
+  override protected def uniqueMessageId(): Int = -2
   override protected def senderName(): String = sender
 }
 

@@ -5,7 +5,7 @@ import java.nio.channels.{DatagramChannel, MembershipKey}
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/2/16.
+  * Date: 10/2/16.
   */
 class UdpBaseJunctura(multicastAddress: String, port: Int, multicastInterface: String) {
   private val group = InetAddress.getByName(multicastAddress)

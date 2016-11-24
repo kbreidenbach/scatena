@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/2/16.
+  * Date: 10/2/16.
   */
 @throws[JuncturaException]
 class UdpWriteJunctura(val name: String, multicastAddress: String, port: Int, multicastInterface: String)

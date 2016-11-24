@@ -8,7 +8,7 @@ import me.breidenbach.scatena.util.BufferFactory
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/2/16.
+  * Date: 10/2/16.
   */
 @throws[JuncturaException]
 class UdpReadJunctura(val name: String, multicastAddress: String, port: Int, multicastInterface: String)

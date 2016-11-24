@@ -10,7 +10,7 @@ import scala.util.{Failure, Success, Try}
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 9/28/16.
+  * Date: 9/28/16.
   */
 object Message {
   import MessageConstants.senderNameSize
@@ -20,9 +20,9 @@ object Message {
     def deSerialize(sender: String, buffer: ByteBuffer): T
   }
 
-  val sender = Array.ofDim[Byte](10)
-  val messageIdSize = 4
-  val positionOfObjectData = intSize + senderNameSize
+  val sender: Array[Byte] = Array.ofDim[Byte](10)
+  val messageIdSize: Int = 4
+  val positionOfObjectData: Int = intSize + senderNameSize
   val messageIdToDeserializer: Map[Int, DeSerializer[_ <: Message]] = Map(
     -2 -> SequenceUnavailableMessage,
     -1 -> ReplayRequestMessage,
@@ -103,7 +103,7 @@ trait Message {
 
   import Message.positionOfObjectData
 
-  val buffer = BufferFactory.createBuffer()
+  val buffer: ByteBuffer = BufferFactory.createBuffer()
 
   @throws[IOException]
   private[messages] def serialize(): ByteBuffer = {

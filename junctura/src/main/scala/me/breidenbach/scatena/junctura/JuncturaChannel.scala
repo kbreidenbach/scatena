@@ -6,7 +6,7 @@ import scala.util.Try
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/7/16.
+  * Date: 10/7/16.
   */
 trait JuncturaChannel {
   def setListener(listener: JuncturaListener): Unit

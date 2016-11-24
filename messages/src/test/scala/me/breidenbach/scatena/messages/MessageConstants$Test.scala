@@ -6,7 +6,7 @@ import org.hamcrest.Matchers._
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/3/16.
+  * Date: 10/3/16.
   */
 class MessageConstants$Test extends BaseTest {
   import MessageConstants._

@@ -1,8 +1,8 @@
 package me.breidenbach.scatena.util
 
 /**
-  * @author kbreiden 
-  *         Date: 10/6/16
+  * @author Kevin Breidenbach
+  * Date: 10/6/16
   */
 object DataConstants {
   // type sizes in bytes

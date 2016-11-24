@@ -2,7 +2,7 @@ package me.breidenbach.scatena.bank
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import java.nio.file.FileSystems
+import java.nio.file.{FileSystems, Path}
 
 import me.breidenbach.BaseTest
 import me.breidenbach.scatena.messages.StringMessage
@@ -155,14 +155,14 @@ class CircularByteBankTest extends BaseTest {
 object CircularByteBankTest {
   val sender = "Test"
   val filename = "TestBank"
-  val filePath = FileSystems.getDefault.getPath(filename)
+  val badFileName = "BAD:/FILENAME"
   val testTextOne = "This is first test message"
   val testTextTwo = "This is second test message"
-  val messageOneLength = testTextOne.length
-  val messageTwoLength = testTextTwo.length
-  val testMessageOne = BufferFactory.createBuffer(messageOneLength)
-  val testMessageTwo = BufferFactory.createBuffer(messageTwoLength)
-  val badFileName = "BAD:/FILENAME"
+  val filePath: Path = FileSystems.getDefault.getPath(filename)
+  val messageOneLength: Int = testTextOne.length
+  val messageTwoLength: Int = testTextTwo.length
+  val testMessageOne: ByteBuffer = BufferFactory.createBuffer(messageOneLength)
+  val testMessageTwo: ByteBuffer = BufferFactory.createBuffer(messageTwoLength)
   val stringMessage = new StringMessage(sender, testTextOne)
 
   testMessageOne.put(testTextOne.getBytes(StandardCharsets.UTF_8))

@@ -1,11 +1,11 @@
 package me.breidenbach.scatena.junctura
 import java.nio.ByteBuffer
 
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/7/16.
+  * Date: 10/7/16.
   */
 class UdpJuncturaChannel(val name: String, multicastAddress: String, port: Int, multicastInterface: String)
   extends JuncturaChannel {
@@ -42,5 +42,5 @@ class UdpJuncturaChannel(val name: String, multicastAddress: String, port: Int, 
 }
 
 object UdpJuncturaChannel {
-  val logger = LoggerFactory.getLogger(this.getClass)
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
 }

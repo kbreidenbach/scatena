@@ -2,7 +2,7 @@ package me.breidenbach.scatena.messages
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/1/16.
+  * Date: 10/1/16.
   */
 object MessageConstants {
   import me.breidenbach.scatena.util.DataConstants._

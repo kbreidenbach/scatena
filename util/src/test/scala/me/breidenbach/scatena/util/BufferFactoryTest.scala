@@ -7,7 +7,7 @@ import org.hamcrest.Matchers._
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 9/28/16.
+  * Date: 9/28/16.
   */
 class BufferFactoryTest extends BaseTest {
   test ("create buffer") {

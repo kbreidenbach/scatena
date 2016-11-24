@@ -16,20 +16,20 @@ import scala.util.Random
 
 /**
   * @author Kevin Breidenbach 
-  *         Date: 10/17/16.
+  * Date: 10/17/16
   */
-class ReplayServiceTest extends BaseTest with JuncturaListener {
-  import ReplayServiceTest._
+class ReplayerTest extends BaseTest with JuncturaListener {
+  import ReplayerTest._
 
   var clientJuncturaChannel: UdpJuncturaChannel = _
   var replayJuncturaChannel: UdpJuncturaChannel = _
-  var testSubject: ReplayService = _
+  var testSubject: Replayer = _
   var readFun: ByteBuffer => Unit = (_) => fail("unexpected message received")
 
   override def beforeEach(): Unit = {
     clientJuncturaChannel = new UdpJuncturaChannel(juncturaName, testHost, testPort, networkInterface)
     replayJuncturaChannel = new UdpJuncturaChannel(replayJuncturaName, testHost, testPort, networkInterface)
-    testSubject = new ReplayService(replayServiceName, replayJuncturaChannel, byteBank)
+    testSubject = new Replayer(replayServiceName, replayJuncturaChannel, byteBank)
     byteBank.reset()
     clientJuncturaChannel.setListener(this)
   }
@@ -318,15 +318,15 @@ class ReplayServiceTest extends BaseTest with JuncturaListener {
   }
 }
 
-object ReplayServiceTest {
+object ReplayerTest {
   val replayServiceName = "Replay"
-  val sender = "test"
-  val networkInterface = getLocalNetworkInterface.getName
-  val sendBuffer = BufferFactory.createBuffer()
-  val testHost = "230.1.1.1"
-  val testPort = 17001
   val juncturaName = "test junctura"
   val replayJuncturaName = "replay junctura"
+  val sender = "test"
+  val testHost = "230.1.1.1"
+  val testPort = 17001
+  val networkInterface: String = getLocalNetworkInterface.getName
+  val sendBuffer: ByteBuffer = BufferFactory.createBuffer()
   val byteBank: ByteBank = new CircularByteBank(CircularByteBank.minimumSize)
   val random = new Random(12)
 

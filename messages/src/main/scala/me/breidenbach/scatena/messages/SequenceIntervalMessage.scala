@@ -6,10 +6,10 @@ import me.breidenbach.scatena.util.DataConstants._
 
 /**
   * @author Kevin Breidenbach 
-  *         Date: 10/11/16.
+  * Date: 10/11/16.
   */
 trait SequenceIntervalMessage {
-  val bytes = Array.ofDim[Byte](longSize * 2)
+  val bytes: Array[Byte] = Array.ofDim[Byte](longSize * 2)
   var sequences: (Long, Long) = _
   var startSeq: Long = _
   var endSeq: Long = _

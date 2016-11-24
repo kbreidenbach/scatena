@@ -1,21 +1,21 @@
 package me.breidenbach.scatena.util
 
 import java.nio.ByteBuffer
-import java.util.concurrent.{Executors, TimeUnit}
+import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 9/28/16.
+  * Date: 9/28/16.
   */
 object BufferFactory {
   import DataConstants.udpMaxPayload
 
-  val logger = LoggerFactory.getLogger(this.getClass)
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val availableBuffers = new collection.mutable.ListBuffer[ByteBuffer]()
   val newBuffers = new collection.mutable.ListBuffer[ByteBuffer]()
-  val executor = Executors.newSingleThreadScheduledExecutor()
+  val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
   val bufferBuilder = new BufferBuilder
 
   // TODO set these with configuration

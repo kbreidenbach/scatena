@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 9/28/16.
+  * Date: 9/28/16.
   */
 case class StringMessage(var sender: String, var message: Array[Byte]) extends Message() {
   def this(sender: String, stringMessage: String) = this(sender, stringMessage.getBytes)

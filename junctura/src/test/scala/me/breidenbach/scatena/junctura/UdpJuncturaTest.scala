@@ -9,7 +9,7 @@ import org.hamcrest.MatcherAssert._
 import org.hamcrest.Matchers._
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/2/16.
+  * Date: 10/2/16.
   */
 class UdpJuncturaTest extends BaseTest {
   import UdpJuncturaTest._
@@ -53,15 +53,15 @@ class UdpJuncturaTest extends BaseTest {
 }
 
 object UdpJuncturaTest {
-  val networkInterface = getLocalNetworkInterface.getName
+  val juncturaName = "test junctura"
   val text = "test message"
-  val message = text.getBytes
-  val sendBuffer = BufferFactory.createBuffer()
   val testHost = "230.1.1.1"
   val testPort = 17000
   val badHost = "0.0.0.0"
   val badPort = 70000
-  val juncturaName = "test junctura"
+  val networkInterface: String = getLocalNetworkInterface.getName
+  val message: Array[Byte] = text.getBytes
+  val sendBuffer: ByteBuffer = BufferFactory.createBuffer()
 
   sendBuffer.put(message)
   sendBuffer.flip()

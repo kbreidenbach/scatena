@@ -9,14 +9,14 @@ import scala.collection.mutable.ListBuffer
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/7/16
+  * Date: 10/7/16
   */
 abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
 
-  protected val memoryBuffer = BufferFactory.createBuffer(bufferSize)
-  protected val messageBuffer = BufferFactory.createBuffer()
-  protected val sizeBuffer = BufferFactory.createBuffer(shortSize)
-  protected val bytes = Array.ofDim[Byte](DataConstants.udpMaxPayload)
+  protected val memoryBuffer: ByteBuffer = BufferFactory.createBuffer(bufferSize)
+  protected val messageBuffer: ByteBuffer = BufferFactory.createBuffer()
+  protected val sizeBuffer: ByteBuffer = BufferFactory.createBuffer(shortSize)
+  protected val bytes: Array[Byte] = Array.ofDim[Byte](DataConstants.udpMaxPayload)
   protected var lastAddedOffset = 0L
 
   override def add(bytes: Array[Byte]): Long = {
@@ -52,10 +52,10 @@ abstract class BufferBackedByteBank(bufferSize: Int) extends ByteBank {
     sizeBuffer.flip()
   }
 
-  protected def emptyBuffer() = BufferBackedByteBank.emptyBuffer
+  protected def emptyBuffer(): ByteBuffer = BufferBackedByteBank.emptyBuffer
 
 }
 
 object BufferBackedByteBank {
-  val emptyBuffer = BufferFactory.emptyReadOnlyBuffer()
+  val emptyBuffer: ByteBuffer = BufferFactory.emptyReadOnlyBuffer()
 }

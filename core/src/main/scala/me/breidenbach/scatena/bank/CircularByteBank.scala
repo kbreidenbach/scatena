@@ -95,7 +95,7 @@ class CircularByteBank(bufferSize: Int = CircularByteBank.defaultMemorySize) ext
 }
 
 object CircularByteBank {
-  val minimumSize = DataConstants.udpMaxPayload * 5
+  val minimumSize: Int = DataConstants.udpMaxPayload * 5
   private[CircularByteBank] val defaultMemorySize = 1024 * 128
   private[CircularByteBank] val logger = LoggerFactory.getLogger(this.getClass)
 }

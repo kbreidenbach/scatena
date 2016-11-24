@@ -13,14 +13,14 @@ import scala.util.Success
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 10/7/16.
+  * Date: 10/7/16
   */
-class ReplayService(name: String, multicastChannel: JuncturaChannel, byteBank: ByteBank) extends JuncturaListener {
+class Replayer(name: String, multicastChannel: JuncturaChannel, byteBank: ByteBank) extends JuncturaListener {
 
   private val sequenceUnavailableMessage = SequenceUnavailableMessage(name, 0, 0, 0, 0)
   private val sendBuffer = BufferFactory.createBuffer()
   private val resendFlags = 0.asInstanceOf[Byte]
-  private val notResenfFlags = 0.asInstanceOf[Byte]
+  private val notResendFlags = 0.asInstanceOf[Byte]
 
   setBit(resendFlagPos, resendFlags)
   multicastChannel.setListener(this)
@@ -60,7 +60,7 @@ class ReplayService(name: String, multicastChannel: JuncturaChannel, byteBank: B
           if (startOffset < endOffset) get(endOffset, endOffset, requestedStartSeq, requestedEndSeq)
         case buffer:ByteBuffer =>
           val nextOffset = byteBank.findNextOffset(startOffset, buffer.remaining())
-          sendMessgae(buffer, resendFlags)
+          sendMessage(buffer, resendFlags)
           if (nextOffset <= endOffset) get(nextOffset, endOffset, requestedStartSeq, requestedEndSeq)
       }
     } else {
@@ -73,10 +73,10 @@ class ReplayService(name: String, multicastChannel: JuncturaChannel, byteBank: B
     sequenceUnavailableMessage.endSequence = endSequence
     sequenceUnavailableMessage.firstAvailableSequence = byteBank.firstOffset()
     sequenceUnavailableMessage.lastAvailableSequence = byteBank.lastOffset()
-    Serializer.serialize(sequenceUnavailableMessage).foreach( buffer => sendMessgae(buffer, notResenfFlags))
+    Serializer.serialize(sequenceUnavailableMessage).foreach( buffer => sendMessage(buffer, notResendFlags))
   }
 
-  private def sendMessgae(buffer: ByteBuffer, flags: Byte): Unit = {
+  private def sendMessage(buffer: ByteBuffer, flags: Byte): Unit = {
     if (buffer.remaining() + messageDataPosition <= udpMaxPayload) {
       sendBuffer.clear().position(messageDataPosition)
       sendBuffer.put(messageFlagsPosition, flags)

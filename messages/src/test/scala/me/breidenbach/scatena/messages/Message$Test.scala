@@ -7,7 +7,7 @@ import org.hamcrest.Matchers._
 
 /**
   * @author Kevin Breidenbach 
-  *         Date: 10/9/16.
+  * Date: 10/9/16.
   */
 class Message$Test extends BaseTest {
 

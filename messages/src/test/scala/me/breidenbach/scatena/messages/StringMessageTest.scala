@@ -8,7 +8,7 @@ import org.hamcrest.Matchers._
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 9/28/16.
+  * Date: 9/28/16.
   */
 object StringMessageTest {
   val sender = "test"

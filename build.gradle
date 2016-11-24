@@ -26,10 +26,5 @@ subprojects {
         useCompileDaemon = false
     }
 
-    //noinspection GroovyMissingReturnStatement
-    test {
-        testLogging {
-            events "passed", "skipped", "failed"
-        }
-    }
+    test.testLogging.events "passed", "skipped", "failed"
 }

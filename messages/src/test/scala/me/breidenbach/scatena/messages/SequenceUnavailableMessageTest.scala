@@ -7,7 +7,7 @@ import org.hamcrest.Matchers._
 
 /**
   * @author Kevin Breidenbach 
-  *         Date: 10/11/16.
+  * Date: 10/11/16.
   */
 class SequenceUnavailableMessageTest extends BaseTest {
   import SequenceUnavailableMessageTest._

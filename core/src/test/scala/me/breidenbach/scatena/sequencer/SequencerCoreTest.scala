@@ -15,7 +15,7 @@ import org.hamcrest.Matchers._
 class SequencerCoreTest extends BaseTest {
   import SequencerCoreTest._
 
-  var byteBank: ByteBank = new FileByteBank(filename)
+  val byteBank: ByteBank = new FileByteBank(filename)
 
   override def beforeEach(): Unit = {
     byteBank.reset()

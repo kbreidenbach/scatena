@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 
 /**
   * @author Kevin Breidenbach 
-  *         Date: 10/9/16.
+  * Date: 10/9/16.
   */
 case class ReplayRequestMessage(var sender: String, var startSequence: Long, var endSequence: Long)
   extends Message() with SequenceIntervalMessage {
@@ -13,7 +13,7 @@ case class ReplayRequestMessage(var sender: String, var startSequence: Long, var
     convertToByteArray(startSequence, endSequence)
   }
 
-  override protected def uniqueMessageId() = -1
+  override protected def uniqueMessageId(): Int = -1
   override protected def senderName(): String = sender
 }
 

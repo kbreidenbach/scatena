@@ -8,7 +8,7 @@ import scala.util.control.Exception.ignoring
 
 /**
   * @author Kevin Breidenbach
-  *         Date: 9/28/16.
+  * Date: 9/28/16.
   */
 object Serializer {
   def serialize[T <: Message](serializable: T): Try[ByteBuffer] = {

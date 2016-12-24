@@ -73,7 +73,7 @@ class Replayer(name: String, multicastChannel: JuncturaChannel, byteBank: ByteBa
     sequenceUnavailableMessage.endSequence = endSequence
     sequenceUnavailableMessage.firstAvailableSequence = byteBank.firstOffset()
     sequenceUnavailableMessage.lastAvailableSequence = byteBank.lastOffset()
-    Serializer.serialize(sequenceUnavailableMessage).foreach( buffer => sendMessage(buffer, notResendFlags))
+    Serializer.serialize(sequenceUnavailableMessage).foreach(buffer => sendMessage(buffer, notResendFlags))
   }
 
   private def sendMessage(buffer: ByteBuffer, flags: Byte): Unit = {
